@@ -1,0 +1,2 @@
+# ACC-EWHA-TALKHASAM
+ACC EWHA 톡하삼 팀입니다!
