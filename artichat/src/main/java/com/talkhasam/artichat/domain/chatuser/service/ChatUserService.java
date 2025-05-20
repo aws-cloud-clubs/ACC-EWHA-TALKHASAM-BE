@@ -59,12 +59,16 @@ public class ChatUserService {
      * 기존 유저 조회 후 비밀번호 인증, 없으면 신규 생성
      */
     private ChatUser saveOrGet(long chatRoomId, String nickname, String rawPassword) {
-        String encodedPassword = encoder.encode(rawPassword);
         log.info("Checking existing user for chatRoomId={}, nickname={}", chatRoomId, nickname);
-        Optional<ChatUser> existingUser = chatUserRepository.findByChatRoomIdAndNicknameAndPassword(chatRoomId, nickname, encodedPassword);
+
+        // ① 먼저 닉네임만으로 조회
+        Optional<ChatUser> existingUser = chatUserRepository.findByChatRoomIdAndNickname(chatRoomId, nickname);
+
         if (existingUser.isPresent()) {
             ChatUser user = existingUser.get();
-            if (encoder.matches(encodedPassword, user.getPassword())) {
+
+            // ② 평문(rawPassword) vs 해시(storedHash) 검사
+            if (encoder.matches(rawPassword, user.getPassword())) {
                 log.info("Existing user login succeeded: id={}", user.getId());
                 return user;
             } else {
@@ -73,19 +77,23 @@ public class ChatUserService {
             }
         }
 
+        // 신규 가입
         boolean isOwner = chatUserRepository.countByChatRoomId(chatRoomId) == 0;
         log.info("No existing user found, creating new one (isOwner={})", isOwner);
 
+        String encodedPassword = encoder.encode(rawPassword);
         ChatUser newUser = ChatUser.builder()
                 .id(nextLong())
                 .chatRoomId(chatRoomId)
                 .nickname(nickname)
-                .password(encodedPassword)
+                .password(encodedPassword)   // 한 번만 인코딩
                 .createdAt(Instant.now())
                 .isOwner(isOwner)
                 .build();
+
         ChatUser saved = chatUserRepository.save(newUser);
-        log.info("New user created: id={} chatRoomId={} nickname={}", saved.getId(), chatRoomId, nickname);
+        log.info("New user created: id={} chatRoomId={} nickname={}",
+                saved.getId(), chatRoomId, nickname);
         return saved;
     }
 }

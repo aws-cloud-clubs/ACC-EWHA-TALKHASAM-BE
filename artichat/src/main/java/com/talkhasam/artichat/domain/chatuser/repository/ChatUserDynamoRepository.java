@@ -3,12 +3,11 @@ package com.talkhasam.artichat.domain.chatuser.repository;
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.Optional;
@@ -27,29 +26,11 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
     }
 
     @Override
-    public Optional<ChatUser> findByChatRoomIdAndNicknameAndPassword(
-            long chatRoomId,
-            String nickname,
-            String encodedPassword
-    ) {
-        // GSI 쿼리 실행
-        SdkIterable<Page<ChatUser>> pages = table.index("chatRoomId-index")
-                .query(r -> r
-                        .queryConditional(QueryConditional.keyEqualTo(k ->
-                                k.partitionValue(chatRoomId)))
-                        .filterExpression(Expression.builder()
-                                .expression("nickname = :nick AND password = :pwd")
-                                .putExpressionValue(":nick",
-                                        AttributeValue.builder().s(nickname).build())
-                                .putExpressionValue(":pwd",
-                                        AttributeValue.builder().s(encodedPassword).build())
-                                .build())
-                );
-
-        // 페이지별 아이템을 flatMap으로 풀어서 첫 번째 결과 반환
-        return StreamSupport.stream(pages.spliterator(), false)
-                .flatMap(page -> page.items().stream())
-                .findFirst();
+    public Optional<ChatUser> findById(long userId) {
+        ChatUser user = table.getItem(r -> r
+                .key(k -> k.partitionValue(userId))
+        );
+        return Optional.ofNullable(user);
     }
 
     @Override
@@ -65,10 +46,25 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
     }
 
     @Override
-    public Optional<ChatUser> findById(long userId) {
-        ChatUser user = table.getItem(r -> r
-                .key(k -> k.partitionValue(userId))
-        );
-        return Optional.ofNullable(user);
+    public Optional<ChatUser> findByChatRoomIdAndNickname(
+            long chatRoomId,
+            String nickname
+    ) {
+        // chatRoomId + nickname 조건으로만 Scan
+        ScanEnhancedRequest scanReq = ScanEnhancedRequest.builder()
+                .filterExpression(Expression.builder()
+                        .expression("chatRoomId = :rid AND nickname = :nick")
+                        .putExpressionValue(":rid",
+                                AttributeValue.builder().n(Long.toString(chatRoomId)).build())
+                        .putExpressionValue(":nick",
+                                AttributeValue.builder().s(nickname).build())
+                        .build())
+                .build();
+
+        // 첫 매칭 유저 반환 (비밀번호 검증은 서비스 레이어에서)
+        return table.scan(scanReq)
+                .items()
+                .stream()
+                .findFirst();
     }
 }
