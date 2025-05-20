@@ -1,6 +1,7 @@
 package com.talkhasam.artichat.domain.chatuser.controller;
 
 import com.talkhasam.artichat.domain.chatuser.dto.ChatUserLoginRequestDto;
+import com.talkhasam.artichat.domain.chatuser.dto.ChatUserLoginResponseDto;
 import com.talkhasam.artichat.domain.chatuser.service.ChatUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class ChatUserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody ChatUserLoginRequestDto chatUserLoginRequestDto) {
-        String token = chatUserService.loginOrRegister(chatUserLoginRequestDto);
-        return ResponseEntity.ok(token);
+        ChatUserLoginResponseDto accessToken = new ChatUserLoginResponseDto(chatUserService.loginOrRegister(chatUserLoginRequestDto));
+        return ResponseEntity.ok(accessToken);
     }
 }
