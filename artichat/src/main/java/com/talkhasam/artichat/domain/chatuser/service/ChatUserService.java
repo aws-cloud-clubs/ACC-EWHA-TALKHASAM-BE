@@ -59,11 +59,12 @@ public class ChatUserService {
      * 기존 유저 조회 후 비밀번호 인증, 없으면 신규 생성
      */
     private ChatUser saveOrGet(long chatRoomId, String nickname, String rawPassword) {
+        String encodedPassword = encoder.encode(rawPassword);
         log.info("Checking existing user for chatRoomId={}, nickname={}", chatRoomId, nickname);
-        Optional<ChatUser> existingUser = chatUserRepository.findByChatRoomIdAndNickname(chatRoomId, nickname);
+        Optional<ChatUser> existingUser = chatUserRepository.findByChatRoomIdAndNicknameAndPassword(chatRoomId, nickname, encodedPassword);
         if (existingUser.isPresent()) {
             ChatUser user = existingUser.get();
-            if (encoder.matches(rawPassword, user.getPassword())) {
+            if (encoder.matches(encodedPassword, user.getPassword())) {
                 log.info("Existing user login succeeded: id={}", user.getId());
                 return user;
             } else {
@@ -79,7 +80,7 @@ public class ChatUserService {
                 .id(nextLong())
                 .chatRoomId(chatRoomId)
                 .nickname(nickname)
-                .password(encoder.encode(rawPassword))
+                .password(encodedPassword)
                 .createdAt(Instant.now())
                 .isOwner(isOwner)
                 .build();

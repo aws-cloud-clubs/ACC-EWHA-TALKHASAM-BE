@@ -8,16 +8,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomAuthenticationProvider
-        implements AuthenticationProvider {
+public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final CustomUserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
 
     public CustomAuthenticationProvider(CustomUserDetailsService uds,
                                         PasswordEncoder encoder) {
         this.userDetailsService = uds;
-        this.passwordEncoder    = encoder;
     }
 
     @Override
@@ -25,25 +22,9 @@ public class CustomAuthenticationProvider
         CustomAuthenticationToken token =
                 (CustomAuthenticationToken) authentication;
 
-        // ① loadUserByChatRoomAndNickname 메서드 구현
-        UserDetails user = userDetailsService
-                .loadUserByChatRoomAndNickname(
-                        token.getChatRoomId(), token.getNickname());
+        UserDetails user = userDetailsService.loadUserById(token.getUserId());
 
-        // ② password 검증 (null 허용 로직 포함)
-        if (user.getPassword() != null) {
-            if (!passwordEncoder.matches(
-                    (String)token.getCredentials(), user.getPassword())) {
-                throw new BadCredentialsException("비밀번호 불일치");
-            }
-        }
-
-        // ③ 최종 AuthenticationToken 리턴
-        return new CustomAuthenticationToken(
-                user,
-                null,
-                user.getAuthorities()
-        );
+        return new CustomAuthenticationToken(user,null, user.getAuthorities());
     }
 
     @Override

@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface ChatUserRepository {
     ChatUser save(ChatUser chatUser);
-    Optional<ChatUser> findByChatRoomIdAndNickname(long chatRoomId, String nickname);
+    Optional<ChatUser> findByChatRoomIdAndNicknameAndPassword(long chatRoomId, String nickname, String encodedPassword);
     int countByChatRoomId(long chatRoomId);
-    // Optional<ChatUser> findByChatRoomIdAndNicknameAndPassword(long chatRoomId, String nickname, String encodedPassword);
+    Optional<ChatUser> findById(long userId);
 }

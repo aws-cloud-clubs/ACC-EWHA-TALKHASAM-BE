@@ -3,9 +3,11 @@ package com.talkhasam.artichat.domain.chatuser.repository;
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -25,22 +27,28 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
     }
 
     @Override
-    public Optional<ChatUser> findByChatRoomIdAndNickname(long chatRoomId, String nickname) {
-        QueryConditional keyCondition = QueryConditional.keyEqualTo(
-                Key.builder().partitionValue(chatRoomId).build()
-        );
-        Expression filter = Expression.builder()
-                .expression("nickname = :nick")
-                .putExpressionValue(
-                        ":nick", AttributeValue.builder().s(nickname).build()
-                )
-                .build();
+    public Optional<ChatUser> findByChatRoomIdAndNicknameAndPassword(
+            long chatRoomId,
+            String nickname,
+            String encodedPassword
+    ) {
+        // GSI 쿼리 실행
+        SdkIterable<Page<ChatUser>> pages = table.index("chatRoomId-index")
+                .query(r -> r
+                        .queryConditional(QueryConditional.keyEqualTo(k ->
+                                k.partitionValue(chatRoomId)))
+                        .filterExpression(Expression.builder()
+                                .expression("nickname = :nick AND password = :pwd")
+                                .putExpressionValue(":nick",
+                                        AttributeValue.builder().s(nickname).build())
+                                .putExpressionValue(":pwd",
+                                        AttributeValue.builder().s(encodedPassword).build())
+                                .build())
+                );
 
-        return table.query(r -> r
-                        .queryConditional(keyCondition)
-                        .filterExpression(filter))
-                .items()
-                .stream()
+        // 페이지별 아이템을 flatMap으로 풀어서 첫 번째 결과 반환
+        return StreamSupport.stream(pages.spliterator(), false)
+                .flatMap(page -> page.items().stream())
                 .findFirst();
     }
 
@@ -49,7 +57,6 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
         QueryConditional keyCondition = QueryConditional.keyEqualTo(
                 Key.builder().partitionValue(chatRoomId).build()
         );
-        // Scan items matching the partition key and count
         long count = StreamSupport.stream(
                 table.query(r -> r.queryConditional(keyCondition)).items().spliterator(),
                 false
@@ -57,26 +64,11 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
         return (int) count;
     }
 
-//    @Override
-//    public Optional<ChatUser> findByChatRoomIdAndNicknameAndPassword(long chatRoomId, String nickname, String password) {
-//        QueryConditional keyCondition = QueryConditional.keyEqualTo(
-//                Key.builder().partitionValue(chatRoomId).build()
-//        );
-//        Expression filter = Expression.builder()
-//                .expression("nickname = :nick AND password = :pwd")
-//                .putExpressionValue(
-//                        ":nick", AttributeValue.builder().s(nickname).build()
-//                )
-//                .putExpressionValue(
-//                        ":pwd",  AttributeValue.builder().s(password).build()
-//                )
-//                .build();
-//
-//        return table.query(r -> r
-//                        .queryConditional(keyCondition)
-//                        .filterExpression(filter))
-//                .items()
-//                .stream()
-//                .findAny();
-//    }
+    @Override
+    public Optional<ChatUser> findById(long userId) {
+        ChatUser user = table.getItem(r -> r
+                .key(k -> k.partitionValue(userId))
+        );
+        return Optional.ofNullable(user);
+    }
 }

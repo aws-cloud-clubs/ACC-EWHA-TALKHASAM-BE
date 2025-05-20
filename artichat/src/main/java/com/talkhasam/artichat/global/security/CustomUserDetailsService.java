@@ -14,15 +14,10 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
     private final ChatUserRepository chatUserRepository;
 
-    public UserDetails loadUserByChatRoomAndNickname(
-            long chatRoomId, String nickname) {
-
-        // repository 에 chatRoomId + nickname 으로 조회
-        ChatUser user = chatUserRepository.findByChatRoomIdAndNickname(
-                chatRoomId, nickname
-        ).orElseThrow(() -> new UsernameNotFoundException(
-                "사용자 없음: " + chatRoomId + "/" + nickname));
-
+    public UserDetails loadUserById(long userId) {
+        ChatUser user = chatUserRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                "사용자 없음: " + userId));
         return User.withUsername(String.valueOf(user.getId())) // principal
                 .password(user.getPassword())
                 .roles("USER")
@@ -31,7 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        throw new UnsupportedOperationException(
-                "이 메서드는 사용되지 않습니다.");
+        throw new UnsupportedOperationException("이 메서드는 사용되지 않습니다.");
     }
 }

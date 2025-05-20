@@ -8,16 +8,12 @@ import java.util.Collection;
 
 public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final Long chatRoomId;
-    private final String nickname;
+    private final Long userId;
     private Object credentials;  // password or null
 
-    public CustomAuthenticationToken(long chatRoomId,
-                                     String nickname,
-                                     Object credentials) {
+    public CustomAuthenticationToken(long userId, Object credentials) {
         super(null);
-        this.chatRoomId = chatRoomId;
-        this.nickname   = nickname;
+        this.userId = userId;
         this.credentials = credentials;
         setAuthenticated(false);
     }
@@ -27,9 +23,8 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
                                      Object credentials,
                                      Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
-        this.chatRoomId   = null;  // principal 에 포함시켜도 무방
-        this.nickname     = null;
-        this.credentials  = credentials;
+        this.userId = null;  // principal 에 포함시켜도 무방
+        this.credentials = credentials;
         setAuthenticated(true);
         super.setDetails(principal);
     }
@@ -45,6 +40,5 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     // 추가 getter
-    public Long getChatRoomId() { return chatRoomId; }
-    public String getNickname()   { return nickname; }
+    public Long getUserId() { return userId; }
 }
