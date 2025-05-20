@@ -2,11 +2,10 @@ package com.talkhasam.artichat.domain.chatroom.repository;
 
 
 import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 
 import java.util.List;
@@ -15,13 +14,10 @@ import java.util.stream.StreamSupport;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class ChatRoomDynamoRepository implements ChatRoomRepository {
 
     private final DynamoDbTable<ChatRoom> table;
-
-    public ChatRoomDynamoRepository(DynamoDbEnhancedClient enhancedClient) {
-        this.table = enhancedClient.table("chatRoom", TableSchema.fromBean(ChatRoom.class));
-    }
 
     @Override
     public Optional<ChatRoom> findById(long chatRoomId) {

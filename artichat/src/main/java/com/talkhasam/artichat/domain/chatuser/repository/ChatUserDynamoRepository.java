@@ -1,8 +1,11 @@
 package com.talkhasam.artichat.domain.chatuser.repository;
 
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -10,13 +13,10 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Repository
+@RequiredArgsConstructor
 public class ChatUserDynamoRepository implements ChatUserRepository {
 
     private final DynamoDbTable<ChatUser> table;
-
-    public ChatUserDynamoRepository(DynamoDbEnhancedClient enhancedClient) {
-        this.table = enhancedClient.table("chatUser", TableSchema.fromBean(ChatUser.class));
-    }
 
     @Override
     public ChatUser save(ChatUser chatUser) {
