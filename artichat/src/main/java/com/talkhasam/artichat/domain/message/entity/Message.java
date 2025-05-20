@@ -30,4 +30,6 @@ public class Message {
     @NotNull
     private Instant createdAt;
 
+    @Getter(onMethod_=@DynamoDbAttribute("ttlEpoch"))
+    public Long ttlEpoch;
 }
