@@ -9,7 +9,7 @@ import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
 import java.time.Instant;
 
@@ -49,11 +49,8 @@ public class ChatUser {
         return id;
     }
 
-    @DynamoDbSortKey
-    @Positive
-    public long getChatRoomId() {
-        return chatRoomId;
-    }
+    @DynamoDbSecondaryPartitionKey(indexNames = "ByChatRoom")
+    public long getChatRoomId() { return chatRoomId; }
 
     @DynamoDbAttribute("nickname")
     @NotBlank
