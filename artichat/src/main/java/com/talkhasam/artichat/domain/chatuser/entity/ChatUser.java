@@ -49,7 +49,7 @@ public class ChatUser {
         return id;
     }
 
-    @DynamoDbSecondaryPartitionKey(indexNames = "ByChatRoom")
+    @DynamoDbSecondaryPartitionKey(indexNames = "chatRoomId-index")
     public long getChatRoomId() { return chatRoomId; }
 
     @DynamoDbAttribute("nickname")
