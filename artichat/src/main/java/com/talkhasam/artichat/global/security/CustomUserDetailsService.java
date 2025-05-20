@@ -15,7 +15,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final ChatUserRepository chatUserRepository;
 
     public UserDetails loadUserByChatRoomAndNickname(
-            String chatRoomId, String nickname) {
+            long chatRoomId, String nickname) {
 
         // repository 에 chatRoomId + nickname 으로 조회
         ChatUser user = chatUserRepository.findByChatRoomIdAndNickname(
@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         ).orElseThrow(() -> new UsernameNotFoundException(
                 "사용자 없음: " + chatRoomId + "/" + nickname));
 
-        return User.withUsername(user.getChatUserId()) // principal
+        return User.withUsername(String.valueOf(user.getId())) // principal
                 .password(user.getPassword())
                 .roles("USER")
                 .build();

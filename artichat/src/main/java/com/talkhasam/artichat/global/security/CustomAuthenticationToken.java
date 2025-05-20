@@ -6,15 +6,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-public class ChatAuthenticationToken extends AbstractAuthenticationToken {
+public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final String chatRoomId;
+    private final Long chatRoomId;
     private final String nickname;
     private Object credentials;  // password or null
 
-    public ChatAuthenticationToken(String chatRoomId,
-                                   String nickname,
-                                   Object credentials) {
+    public CustomAuthenticationToken(long chatRoomId,
+                                     String nickname,
+                                     Object credentials) {
         super(null);
         this.chatRoomId = chatRoomId;
         this.nickname   = nickname;
@@ -23,9 +23,9 @@ public class ChatAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     // 인증 완료 후 사용될 생성자
-    public ChatAuthenticationToken(UserDetails principal,
-                                   Object credentials,
-                                   Collection<? extends GrantedAuthority> authorities) {
+    public CustomAuthenticationToken(UserDetails principal,
+                                     Object credentials,
+                                     Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.chatRoomId   = null;  // principal 에 포함시켜도 무방
         this.nickname     = null;
@@ -45,6 +45,6 @@ public class ChatAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     // 추가 getter
-    public String getChatRoomId() { return chatRoomId; }
+    public Long getChatRoomId() { return chatRoomId; }
     public String getNickname()   { return nickname; }
 }

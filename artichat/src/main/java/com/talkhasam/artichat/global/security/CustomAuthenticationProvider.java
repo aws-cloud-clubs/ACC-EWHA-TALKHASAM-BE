@@ -8,22 +8,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ChatAuthenticationProvider
+public class CustomAuthenticationProvider
         implements AuthenticationProvider {
 
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    public ChatAuthenticationProvider(CustomUserDetailsService uds,
-                                      PasswordEncoder encoder) {
+    public CustomAuthenticationProvider(CustomUserDetailsService uds,
+                                        PasswordEncoder encoder) {
         this.userDetailsService = uds;
         this.passwordEncoder    = encoder;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        ChatAuthenticationToken token =
-                (ChatAuthenticationToken) authentication;
+        CustomAuthenticationToken token =
+                (CustomAuthenticationToken) authentication;
 
         // ① loadUserByChatRoomAndNickname 메서드 구현
         UserDetails user = userDetailsService
@@ -39,7 +39,7 @@ public class ChatAuthenticationProvider
         }
 
         // ③ 최종 AuthenticationToken 리턴
-        return new ChatAuthenticationToken(
+        return new CustomAuthenticationToken(
                 user,
                 null,
                 user.getAuthorities()
@@ -48,6 +48,6 @@ public class ChatAuthenticationProvider
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return ChatAuthenticationToken.class.isAssignableFrom(authentication);
+        return CustomAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
