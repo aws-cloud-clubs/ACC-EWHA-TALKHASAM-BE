@@ -36,6 +36,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation(platform("software.amazon.awssdk:bom:2.31.45"))
 	implementation 'software.amazon.awssdk:dynamodb-enhanced'
+	implementation 'com.github.f4b6a3:tsid-creator:5.2.6' // TSID 생성
 }
 
 tasks.named('test') {

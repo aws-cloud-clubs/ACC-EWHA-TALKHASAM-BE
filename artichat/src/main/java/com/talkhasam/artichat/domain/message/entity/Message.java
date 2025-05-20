@@ -1,4 +1,4 @@
-package com.talkhasam.artichat.domain.chatuser.entity;
+package com.talkhasam.artichat.domain.message.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,20 +15,14 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatUser {
-
+public class Message {
     @Getter(onMethod_=@DynamoDbPartitionKey)
-    private long id; // TSID 형식
+    private long messageId;
 
     @Getter(onMethod_=@DynamoDbSortKey)
-    private long chatRoomId;
-
-    @Getter(onMethod_=@DynamoDbAttribute("nickname"))
-    private String nickname;
-
-    @Getter(onMethod_=@DynamoDbAttribute("password"))
-    private String password;
+    public long chatUserId;
 
     @Getter(onMethod_=@DynamoDbAttribute("createdAt"))
     private Instant createdAt;
+
 }
