@@ -1,5 +1,7 @@
 package com.talkhasam.artichat.domain.message.entity;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,12 +19,15 @@ import java.time.Instant;
 @Builder
 public class Message {
     @Getter(onMethod_=@DynamoDbPartitionKey)
-    private long messageId;
+    @Positive
+    private long id;
 
     @Getter(onMethod_=@DynamoDbSortKey)
+    @Positive
     public long chatUserId;
 
     @Getter(onMethod_=@DynamoDbAttribute("createdAt"))
+    @NotNull
     private Instant createdAt;
 
 }
