@@ -20,11 +20,11 @@ import java.time.Instant;
 public class Message {
     @Getter(onMethod_=@DynamoDbPartitionKey)
     @Positive
-    private long id;
+    public long chatUserId;
 
     @Getter(onMethod_=@DynamoDbSortKey)
     @Positive
-    public long chatUserId;
+    private long id;
 
     @Getter(onMethod_=@DynamoDbAttribute("createdAt"))
     @NotNull
