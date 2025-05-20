@@ -33,7 +33,7 @@ public class ChatUserService {
 
         ChatUser newUser = ChatUser.builder()
                 .id(nextLong())
-                .chatRoomId(id)
+                .chatRoomId(chatRoomId)
                 .nickname(nickname)
                 .password(encodedPassword)
                 .createdAt(Instant.now())
