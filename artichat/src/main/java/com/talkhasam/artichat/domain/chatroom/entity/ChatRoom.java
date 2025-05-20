@@ -3,42 +3,74 @@ package com.talkhasam.artichat.domain.chatroom.entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
 
+@Setter
 @DynamoDbBean
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ChatRoom {
 
-    @Getter(onMethod_=@DynamoDbPartitionKey)
-    @Positive
-    private long id; // TSID 형식
-
-    @Getter(onMethod_=@DynamoDbAttribute("chatRoomName"))
-    @NotBlank
+    private long id;
     private String chatRoomName;
-
-    @Getter(onMethod_=@DynamoDbAttribute("profileImg"))
     private String profileImg;
-
-    @Getter(onMethod_=@DynamoDbAttribute("createdAt"))
-    @NotNull
     private Instant createdAt;
-
-    @Getter(onMethod_=@DynamoDbAttribute("modifiedAt"))
-    @NotNull
     private Instant modifiedAt;
+    private String linkId;
 
-    @Getter(onMethod_=@DynamoDbAttribute("linkId"))
+    // 기본 생성자
+    public ChatRoom() {}
+
+    // 전체 필드 생성자
+    public ChatRoom(long id,
+                    String chatRoomName,
+                    String profileImg,
+                    Instant createdAt,
+                    Instant modifiedAt,
+                    String linkId) {
+        this.id = id;
+        this.chatRoomName = chatRoomName;
+        this.profileImg = profileImg;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+        this.linkId = linkId;
+    }
+
+    @DynamoDbPartitionKey
+    @Positive
+    public long getId() {
+        return id;
+    }
+
+    @DynamoDbAttribute("chatRoomName")
     @NotBlank
-    private String linkId; // URL 생성 목적
+    public String getChatRoomName() {
+        return chatRoomName;
+    }
+
+    @DynamoDbAttribute("profileImg")
+    public String getProfileImg() {
+        return profileImg;
+    }
+
+    @DynamoDbAttribute("createdAt")
+    @NotNull
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    @DynamoDbAttribute("modifiedAt")
+    @NotNull
+    public Instant getModifiedAt() {
+        return modifiedAt;
+    }
+
+    @DynamoDbAttribute("linkId")
+    @NotBlank
+    public String getLinkId() {
+        return linkId;
+    }
 }

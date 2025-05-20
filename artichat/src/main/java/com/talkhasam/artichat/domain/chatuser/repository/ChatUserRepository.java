@@ -5,8 +5,8 @@ import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import java.util.Optional;
 
 public interface ChatUserRepository {
-    Optional<ChatUser> findByChatRoomIdAndNickname(long chatRoomId, String nickname);
     ChatUser save(ChatUser chatUser);
+    Optional<ChatUser> findByChatRoomIdAndNickname(long chatRoomId, String nickname);
     int countByChatRoomId(long chatRoomId);
-    boolean existsByChatRoomIdAndNickname(long chatRoomId, String nickname);
+    // Optional<ChatUser> findByChatRoomIdAndNicknameAndPassword(long chatRoomId, String nickname, String encodedPassword);
 }

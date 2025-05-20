@@ -4,10 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -15,32 +13,68 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 
 import java.time.Instant;
 
-@DynamoDbBean
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@Setter
+@DynamoDbBean
 public class ChatUser {
 
-    @Getter(onMethod_=@DynamoDbPartitionKey)
-    @Positive
-    private long id; // TSID 형식
-
-    @Getter(onMethod_=@DynamoDbSortKey)
-    @Positive
-    private long chatRoomId;
-
-    @Getter(onMethod_=@DynamoDbAttribute("nickname"))
-    @NotBlank
+    private long id;            // TSID 형식
+    private long chatRoomId;    // Partition Key
     private String nickname;
-
-    @Getter(onMethod_=@DynamoDbAttribute("password"))
-    @Size(min=8, max=16)
     private String password;
-
-    @Getter(onMethod_=@DynamoDbAttribute("createdAt"))
-    @NotNull
     private Instant createdAt;
-
-    @Getter(onMethod_=@DynamoDbAttribute("isOwner"))
     private boolean isOwner;
+
+    // 기본 생성자
+    public ChatUser() {}
+
+    // 전체 필드 생성자
+    public ChatUser(long id,
+                    long chatRoomId,
+                    String nickname,
+                    String password,
+                    Instant createdAt,
+                    boolean isOwner) {
+        this.id = id;
+        this.chatRoomId = chatRoomId;
+        this.nickname = nickname;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.isOwner = isOwner;
+    }
+
+    @DynamoDbPartitionKey
+    @Positive
+    public long getId() {
+        return id;
+    }
+
+    @DynamoDbSortKey
+    @Positive
+    public long getChatRoomId() {
+        return chatRoomId;
+    }
+
+    @DynamoDbAttribute("nickname")
+    @NotBlank
+    public String getNickname() {
+        return nickname;
+    }
+
+    @DynamoDbAttribute("password")
+    @Size(min = 8, max = 16)
+    public String getPassword() {
+        return password;
+    }
+
+    @DynamoDbAttribute("createdAt")
+    @NotNull
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    @DynamoDbAttribute("isOwner")
+    public boolean isOwner() {
+        return isOwner;
+    }
 }
