@@ -26,9 +26,9 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
     }
 
     @Override
-    public Optional<ChatUser> findById(long userId) {
+    public Optional<ChatUser> findById(long id) {
         ChatUser user = table.getItem(r -> r
-                .key(k -> k.partitionValue(userId))
+                .key(k -> k.partitionValue(id))
         );
         return Optional.ofNullable(user);
     }
