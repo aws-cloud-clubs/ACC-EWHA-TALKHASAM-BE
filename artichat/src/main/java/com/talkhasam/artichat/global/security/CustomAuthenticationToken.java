@@ -1,5 +1,6 @@
 package com.talkhasam.artichat.global.security;
 
+import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import java.util.Collection;
 
 public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
+    @Getter
     private final Long userId;
     private Object credentials;  // password or null
 
@@ -38,7 +40,4 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
     public Object getPrincipal() {
         return super.getDetails();  // 또는 UserDetails
     }
-
-    // 추가 getter
-    public Long getUserId() { return userId; }
 }
