@@ -70,8 +70,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error", "/favicon.ico",
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/chatuser/login",
-                                "/chat/**").permitAll()
+                        .requestMatchers("/chatuser/login").permitAll()
+                        .requestMatchers("/chatusers/self").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
