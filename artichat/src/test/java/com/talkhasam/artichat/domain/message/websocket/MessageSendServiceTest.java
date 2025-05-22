@@ -1,7 +1,5 @@
 package com.talkhasam.artichat.domain.message.websocket;
 
-
-import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import com.talkhasam.artichat.domain.message.dto.MessageResponseDto;
 import com.talkhasam.artichat.domain.message.entity.Message;
 import com.talkhasam.artichat.domain.message.repository.MessageRepository;
@@ -10,7 +8,6 @@ import com.talkhasam.artichat.global.redis.RedisService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,10 +15,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.Instant;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MessageSendServiceTest {
@@ -38,44 +33,46 @@ class MessageSendServiceTest {
     @InjectMocks
     private MessageSendService service;
 
-    @Captor
-    private ArgumentCaptor<Message> messageCaptor;
-
     @Test
     void sendToRoom_savesAndBroadcasts() {
-        // Given
-        long roomId = 100L;
-        ChatUser user = ChatUser.builder()
-                .id(42L)
-                .chatRoomId(roomId)
-                .nickname("tester")
-                .password("ignored")
-                .createdAt(Instant.now())
-                .isOwner(true)
-                .build();
-        String content = "hello world";
+        // given
+        long chatRoomId = 42L;
+        long chatUserId = 99L;
+        String nickname = "tester";
+        boolean isOwner= true;
+        String content = "Hello, world!";
 
-//        // When
-//        service.sendToChatRoom(roomId, user, content);
+        // when
+        service.sendToChatRoom(chatRoomId, chatUserId, nickname, isOwner, content);
 
-        // Then: DynamoDB 저장 검증
-        verify(messageRepository, times(1)).save(messageCaptor.capture());
-        Message saved = messageCaptor.getValue();
-        assertThat(saved.getChatRoomId()).isEqualTo(roomId);
-        assertThat(saved.getChatUserId()).isEqualTo(user.getId());
-        assertThat(saved.getNickname()).isEqualTo(user.getNickname());
-        assertThat(saved.isOwner()).isTrue();
-        assertThat(saved.getContent()).isEqualTo(content);
-        assertThat(saved.getCreatedAt()).isNotNull();
-        assertThat(saved.getTtlEpoch()).isGreaterThan(Instant.now().getEpochSecond());
+        // then: repository.save(...) 호출 검증
+        ArgumentCaptor<Message> msgCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(messageRepository, times(1)).save(msgCaptor.capture());
+        Message saved = msgCaptor.getValue();
 
-        // Then: STOMP 브로커 전송 검증
-        String expectedDestination = "/topic/chatroom/" + roomId;
-        verify(template, times(1))
-                .convertAndSend(eq(expectedDestination), eq(MessageResponseDto.from(saved)));
+        assertEquals(chatRoomId,     saved.getChatRoomId());
+        assertEquals(chatUserId,     saved.getChatUserId());
+        assertEquals(nickname,       saved.getNickname());
+        assertEquals(isOwner,    saved.isOwner());
+        assertEquals(content,    saved.getContent());
+        assertNotNull(saved.getCreatedAt());
+        assertTrue(saved.getTtlEpoch() > Instant.now().getEpochSecond());
 
-        // Then: Redis Pub/Sub 전송 검증
-        verify(redisService, times(1))
-                .publish(eq(expectedDestination), eq(MessageResponseDto.from(saved)));
+        // then: STOMP 브로드캐스트 검증
+        String expectedDest = "/topic/chatrooms/" + chatRoomId + "/messages";
+        ArgumentCaptor<MessageResponseDto> dtoCaptor = ArgumentCaptor.forClass(MessageResponseDto.class);
+        verify(template, times(1)).convertAndSend(eq(expectedDest), dtoCaptor.capture());
+        MessageResponseDto dto = dtoCaptor.getValue();
+
+        // dto 필드 일치 검증
+        assertEquals(saved.getId(),         dto.id());
+        assertEquals(saved.getChatRoomId(), dto.chatRoomId());
+        assertEquals(saved.getChatUserId(), dto.chatUserId());
+        assertEquals(saved.getNickname(),   dto.nickname());
+        assertEquals(saved.getContent(),    dto.content());
+        assertEquals(saved.getCreatedAt(),  dto.createdAt());
+
+        // then: Redis 퍼블리시 검증
+        verify(redisService, times(1)).publish(expectedDest, dto);
     }
 }
