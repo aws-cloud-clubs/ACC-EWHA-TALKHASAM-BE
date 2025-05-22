@@ -20,7 +20,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenService tokenService;
+    private final CustomTokenService customTokenService;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -30,8 +30,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = request.getHeader("X-AUTH-TOKEN");
 
-        if (token != null && tokenService.validate(token)) {
-            String username = tokenService.extractUsername(token);
+        if (token != null && customTokenService.validateToken(token)) {
+            String username = customTokenService.extractChatUserId(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken auth =
