@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -13,9 +15,11 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecon
 
 import java.time.Instant;
 
+@DynamoDbBean
 @Builder
 @Setter
-@DynamoDbBean
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatUser {
 
     private long id;            // TSID 형식
@@ -25,31 +29,13 @@ public class ChatUser {
     private Instant createdAt;
     private boolean isOwner;
 
-    // 기본 생성자
-    public ChatUser() {}
-
-    // 전체 필드 생성자
-    public ChatUser(long id,
-                    long chatRoomId,
-                    String nickname,
-                    String password,
-                    Instant createdAt,
-                    boolean isOwner) {
-        this.id = id;
-        this.chatRoomId = chatRoomId;
-        this.nickname = nickname;
-        this.password = password;
-        this.createdAt = createdAt;
-        this.isOwner = isOwner;
-    }
-
     @DynamoDbPartitionKey
     @Positive
     public long getId() {
         return id;
     }
 
-    @DynamoDbSecondaryPartitionKey(indexNames = "talkhasam-chatRoomId-index")
+    @DynamoDbSecondaryPartitionKey(indexNames = "chatRoomId-index")
     public long getChatRoomId() { return chatRoomId; }
 
     @DynamoDbAttribute("nickname")

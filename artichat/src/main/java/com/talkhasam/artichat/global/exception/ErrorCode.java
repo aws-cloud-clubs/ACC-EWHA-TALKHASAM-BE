@@ -48,7 +48,7 @@ public enum ErrorCode {
     DATABASE_CONNECTION_ERROR(500, "데이터베이스 연결에 문제가 발생했습니다."),
     S3_UPLOAD_ERROR(500, "S3에 업로드하지 못했습니다."),
     INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
-    ;
+    WEBSOCKET_ERROR(500, "메시지 전송에 실패했습니다.");
 
     private final int status;
     private final String message;
