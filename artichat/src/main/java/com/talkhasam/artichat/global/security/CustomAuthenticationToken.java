@@ -11,7 +11,7 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
     @Getter
     private final Long userId;
-    private Object credentials;  // password or null
+    private final Object credentials;  // password or null
 
     public CustomAuthenticationToken(long userId, Object credentials) {
         super(null);
@@ -25,7 +25,7 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
                                      Object credentials,
                                      Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
-        this.userId = null;  // principal 에 포함시켜도 무방
+        this.userId = null;
         this.credentials = credentials;
         setAuthenticated(true);
         super.setDetails(principal);
@@ -38,6 +38,6 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return super.getDetails();  // 또는 UserDetails
+        return super.getDetails();
     }
 }

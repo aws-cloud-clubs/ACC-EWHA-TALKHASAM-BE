@@ -6,10 +6,6 @@ import jakarta.validation.constraints.Size;
 
 // 클라이언트에서 서버로 들어오는 요청
 public record MessageRequestDto(
-        @NotNull
-        Long chatRoomId,
-        @NotNull
-        Long chatUserId,
         @NotBlank
         String nickname,
         @NotNull

@@ -6,7 +6,7 @@ import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import com.talkhasam.artichat.domain.chatuser.repository.ChatUserRepository;
 import com.talkhasam.artichat.global.exception.CustomException;
 import com.talkhasam.artichat.global.exception.ErrorCode;
-import com.talkhasam.artichat.global.security.JwtTokenService;
+import com.talkhasam.artichat.global.security.CustomTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +25,7 @@ public class ChatUserService {
     private final ChatUserRepository chatUserRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final PasswordEncoder encoder;
-    private final JwtTokenService tokenService;
+    private final CustomTokenService tokenService;
 
     // 로그인 또는 회원가입 후 JWT 토큰 반환
     public String loginOrRegister(ChatUserLoginRequestDto requestDto) {

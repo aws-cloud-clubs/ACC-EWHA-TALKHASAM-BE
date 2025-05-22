@@ -4,7 +4,7 @@ import com.talkhasam.artichat.domain.message.entity.Message;
 
 import java.time.Instant;
 
-// 서버에서 클라이언트로 나가는 메시지 형식
+// 서버에서 클라이언트로 나가는 메시지 응답
 public record MessageResponseDto(
         long id,
         long chatRoomId,
