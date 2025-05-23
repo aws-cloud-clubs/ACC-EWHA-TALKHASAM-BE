@@ -14,6 +14,8 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 
+import java.time.Duration;
+
 @Configuration
 public class RedisConfig {
 
@@ -23,21 +25,24 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.ssl.enabled}")
-    private boolean sslEnabled;
-
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration standaloneConfig =
+        // 서버 정보
+        RedisStandaloneConfiguration serverConfig =
                 new RedisStandaloneConfiguration(redisHost, redisPort);
-        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = LettuceClientConfiguration.builder();
-        if (sslEnabled) {
-            builder.useSsl();
-        }
-        LettuceClientConfiguration clientConfig = builder.build();
 
-        return new LettuceConnectionFactory(standaloneConfig, clientConfig);
+        // 클라이언트에 TLS 옵션 적용
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .useSsl()                             // SSL 켜기
+                .startTls()                           // STARTTLS 모드
+                .disablePeerVerification()            // (선택) 자체 서명 인증서용
+                .and()                                // ↑ SSL 빌더에서 상위 빌더로 복귀
+                .commandTimeout(Duration.ofSeconds(10))
+                .build();
+
+        return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
+
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(
