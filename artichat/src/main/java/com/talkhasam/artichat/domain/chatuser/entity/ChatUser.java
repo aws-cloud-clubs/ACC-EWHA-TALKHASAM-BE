@@ -22,8 +22,8 @@ import java.time.Instant;
 @AllArgsConstructor
 public class ChatUser {
 
-    private long id;            // TSID 형식
-    private long chatRoomId;    // Partition Key
+    private long id;
+    private long chatRoomId;    // GSI (Partition Key)
     private String nickname;
     private String password;
     private Instant createdAt;
