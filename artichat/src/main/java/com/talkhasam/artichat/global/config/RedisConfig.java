@@ -33,13 +33,9 @@ public class RedisConfig {
 
         // 클라이언트에 TLS 옵션 적용
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-                .useSsl()                             // SSL 켜기
-                .startTls()                           // STARTTLS 모드
-                .disablePeerVerification()            // (선택) 자체 서명 인증서용
-                .and()                                // ↑ SSL 빌더에서 상위 빌더로 복귀
                 .commandTimeout(Duration.ofSeconds(10))
+                .useSsl()                             // SSL 켜기
                 .build();
-
         return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
 
