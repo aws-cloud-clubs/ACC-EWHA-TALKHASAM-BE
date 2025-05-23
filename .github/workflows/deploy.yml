@@ -59,29 +59,32 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKER_REPO }}:latest
-
       - name: Deploy via SSM
         run: |
           INSTANCE_ID=${{ secrets.EC2_INSTANCE_ID }}
 
-          # 1) Docker/Docker Compose 플러그인 설치 (조건부)
+          # 1) Docker & Compose 설치 (조건부)
           aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "Ensure Docker & Compose on AL2023" \
-            --parameters commands=[
-              "if ! command -v docker; then sudo dnf install -y docker docker-compose-plugin && sudo systemctl enable --now docker; fi"
-            ]
-            
-          # 2) 애플리케이션 배포
+            --parameters '{ 
+              "commands": [
+                "if ! command -v docker; then sudo dnf install -y docker docker-compose-plugin && sudo systemctl enable --now docker; fi"
+              ]
+            }'
+
+          # 2) Spring Boot 애플리케이션 배포
           aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy Spring Boot via Docker Compose" \
-            --parameters commands=[
-              "echo '${{ secrets.DOCKER_COMPOSE }}' | sudo tee /home/ec2-user/docker-compose.yml",
-              "cd /home/ec2-user && sudo docker compose down",
-              "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
-              "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
-              "sudo docker system prune -af"
-            ]
+            --parameters '{
+              "commands": [
+                "echo \"${{ secrets.DOCKER_COMPOSE }}\" | sudo tee /home/ec2-user/docker-compose.yml",
+                "cd /home/ec2-user && sudo docker compose down",
+                "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
+                "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
+                "sudo docker system prune -af"
+              ]
+            }'
