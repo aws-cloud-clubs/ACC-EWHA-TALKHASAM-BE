@@ -74,8 +74,8 @@ jobs:
           # 2) Generate SSM parameter file
           cat <<EOF > ssm-deploy.json
             {"commands":[
-              "echo '${{ secrets.DOCKER_COMPOSE }}' | base64 -d > /home/ec2-user/docker-compose.yml",
-              "cd /home/ec2-user && sudo docker compose down",
+              "sudo docker ps -q --filter 'name=artichat' | xargs -r sudo docker rm -f",
+              "cd /home/ec2-user && sudo docker compose down --remove-orphans",
               "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
               "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
               "sudo docker system prune -af"
