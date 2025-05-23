@@ -5,7 +5,6 @@ import com.talkhasam.artichat.global.redis.RedisStompBridge;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,8 +12,6 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-
-import java.util.Arrays;
 
 @Configuration
 public class RedisConfig {
@@ -25,23 +22,10 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.cluster.enabled:false}")
-    private boolean clusterEnabled;
-
-    @Value("${spring.data.redis.cluster.nodes:}")
-    private String clusterNodes;
-
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        if (clusterEnabled && !clusterNodes.isEmpty()) {
-            RedisClusterConfiguration clusterConfig =
-                    new RedisClusterConfiguration(Arrays.asList(clusterNodes.split(",")));
-            return new LettuceConnectionFactory(clusterConfig);
-        } else {
-            RedisStandaloneConfiguration standaloneConfig =
-                    new RedisStandaloneConfiguration(redisHost, redisPort);
-            return new LettuceConnectionFactory(standaloneConfig);
-        }
+        RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
+        return new LettuceConnectionFactory(standaloneConfig);
     }
 
     @Bean
@@ -59,11 +43,11 @@ public class RedisConfig {
 
     @Bean
     public RedisMessageListenerContainer redisListenerContainer(
-            LettuceConnectionFactory cf,
+            LettuceConnectionFactory connectionFactory,
             RedisStompBridge bridge
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(cf);
+        container.setConnectionFactory(connectionFactory);
         container.addMessageListener(bridge, new PatternTopic("/topic/chatroom/*"));
         return container;
     }
