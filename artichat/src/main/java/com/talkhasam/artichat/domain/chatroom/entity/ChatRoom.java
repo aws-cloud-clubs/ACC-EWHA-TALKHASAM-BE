@@ -73,4 +73,8 @@ public class ChatRoom {
     public String getLinkId() {
         return linkId;
     }
+
+    public void setModifiedAt(Instant now) {
+
+    }
 }
