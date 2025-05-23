@@ -59,30 +59,25 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKER_REPO }}:latest
-          
-      - name: Deploy via SSM
+                - name: Deploy via SSM
         run: |
           INSTANCE_ID=${{ secrets.EC2_INSTANCE_ID }}
 
-          # 1) Ensure Docker & Compose on Amazon Linux 2023
-          aws ssm send-command \
-            --instance-ids "$INSTANCE_ID" \
-            --document-name AWS-RunShellScript \
-            --comment "Ensure Docker & Compose on AL2023" \
-            --parameters commands=["if ! command -v docker; then sudo dnf install -y docker docker-compose-plugin && sudo systemctl enable --now docker; fi"]
-
-          # 2) Generate SSM parameter file
-          cat <<EOF > ssm-deploy.json
-            {"commands":[
+          # 1) SSM 파라미터 파일 생성
+          cat <<'JSON' > ssm-deploy.json
+          {
+            "commands": [
               "sudo docker ps -q --filter 'name=artichat' | xargs -r sudo docker rm -f",
+              "echo \"${{ secrets.DOCKER_COMPOSE }}\" > /home/ec2-user/docker-compose.yml",
               "cd /home/ec2-user && sudo docker compose down --remove-orphans",
               "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
               "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
               "sudo docker system prune -af"
-            ]}
-            EOF
+            ]
+          }
+          JSON
 
-          # 3) Deploy application via SSM
+          # 2) SSM으로 EC2에 배포 명령 전송
           aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name AWS-RunShellScript \
