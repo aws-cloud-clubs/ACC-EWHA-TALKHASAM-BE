@@ -45,7 +45,11 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
-                "https://localhost:3000"
+                "https://localhost:3000",
+                "http://artichat.n-e.kr/",
+                "https://artichat.n-e.kr/",
+                "http://www.artichat.n-e.kr/",
+                "https://www.artichat.n-e.kr/"
         ));
 
         configuration.addAllowedMethod("*");
