@@ -59,7 +59,7 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ secrets.DOCKER_REPO }}:latest
-                - name: Deploy via SSM
+      - name: Deploy via SSM
         run: |
           INSTANCE_ID=${{ secrets.EC2_INSTANCE_ID }}
 
