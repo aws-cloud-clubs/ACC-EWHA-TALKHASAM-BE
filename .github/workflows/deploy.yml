@@ -69,11 +69,25 @@ jobs:
             --instance-ids "$INSTANCE_ID" \
             --document-name AWS-RunShellScript \
             --comment "Ensure Docker & Compose on AL2023" \
-            --parameters 'commands=["if ! command -v docker; then sudo dnf install -y docker docker-compose-plugin && sudo systemctl enable --now docker; fi"]'
+            --parameters commands=["if ! command -v docker; then sudo dnf install -y docker docker-compose-plugin && sudo systemctl enable --now docker; fi"]
 
-          # 2) Spring Boot 애플리케이션 배포
+          # 2) SSM에 넘길 파라미터 JSON 파일 생성
+          cat <<EOF > ssm-deploy.json
+          {
+            "commands": [
+              "echo \"${{ secrets.DOCKER_COMPOSE }}\" | sudo tee /home/ec2-user/docker-compose.yml",
+              "cd /home/ec2-user && sudo docker compose down",
+              "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
+              "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
+              "sudo docker system prune -af"
+            ]
+          }
+          EOF
+
+          # 3) JSON 파일을 file:// 로 넘겨서 deploy 실행
           aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name AWS-RunShellScript \
             --comment "Deploy via Docker Compose" \
-            --parameters 'commands=["echo \"${{ secrets.DOCKER_COMPOSE }}\" | sudo tee /home/ec2-user/docker-compose.yml","cd /home/ec2-user && sudo docker compose down","cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest","cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate","sudo docker system prune -af"]'
+            --parameters file://ssm-deploy.json
+
