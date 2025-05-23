@@ -26,6 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        throw new UnsupportedOperationException("이 메서드는 사용되지 않습니다.");
+        return loadUserById(Long.parseLong(username));
     }
 }

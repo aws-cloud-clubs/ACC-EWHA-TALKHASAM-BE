@@ -55,7 +55,7 @@ public class CustomTokenService {
         }
     }
 
-    public String extractChatUserId(String token) {
+    public String extractUsername(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(accessKey)

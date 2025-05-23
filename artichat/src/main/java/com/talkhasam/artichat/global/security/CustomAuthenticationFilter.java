@@ -5,11 +5,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,24 +27,16 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-        String token = request.getHeader("X-AUTH-TOKEN");
-
-        if (token != null && customTokenService.validateToken(token)) {
-            String username = customTokenService.extractChatUserId(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-            auth.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-            );
-            SecurityContextHolder.getContext().setAuthentication(auth);
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);   // "Bearer " 제거
+            if (customTokenService.validateToken(token)) {
+                String username = customTokenService.extractUsername(token);
+                UserDetails user = userDetailsService.loadUserByUsername(username);
+                CustomAuthenticationToken auth =  new CustomAuthenticationToken(token, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
-
         filterChain.doFilter(request, response);
     }
 }

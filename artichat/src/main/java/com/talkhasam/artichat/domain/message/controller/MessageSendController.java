@@ -17,7 +17,7 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 public class MessageSendController {
-    private final MessageSendService chatService;
+    private final MessageSendService messageSendService;
 
     @MessageMapping("/chatrooms/{chatRoomId}/messages") // /app/chatrooms/123/messages
     public void onMessage(
@@ -26,7 +26,7 @@ public class MessageSendController {
             Principal principal
     ) {
         long chatUserId = Long.parseLong(principal.getName());
-        chatService.sendToChatRoom(
+        messageSendService.sendToChatRoom(
                 chatRoomId,
                 chatUserId,
                 requestDto.nickname(),

@@ -51,7 +51,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     if (bearer != null && bearer.startsWith("Bearer ")) {
                         String token = bearer.substring(7);
                         // JWT 에서 chatUserId만 뽑아 Principal 에 세팅
-                        String userId = customTokenService.extractChatUserId(token);
+                        String userId = customTokenService.extractUsername(token);
                         Authentication auth = new UsernamePasswordAuthenticationToken(
                                 userId, null, List.of()
                         );
