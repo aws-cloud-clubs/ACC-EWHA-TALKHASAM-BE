@@ -68,7 +68,7 @@ jobs:
           {
             "commands": [
               "sudo docker ps -q --filter 'name=artichat' | xargs -r sudo docker rm -f",
-              "echo \"${{ secrets.DOCKER_COMPOSE }}\" > /home/ec2-user/docker-compose.yml",
+              "echo \"${{ secrets.DOCKER_COMPOSE }}\" | base64 -d > /home/ec2-user/docker-compose.yml",
               "cd /home/ec2-user && sudo docker compose down --remove-orphans",
               "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
               "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
