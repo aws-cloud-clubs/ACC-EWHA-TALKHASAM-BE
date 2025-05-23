@@ -19,7 +19,6 @@ public class ChatRoom {
     private String profileImg;
     private Instant createdAt;
     private Instant modifiedAt;
-    private String linkId;
 
     // 기본 생성자
     public ChatRoom() {}
@@ -29,14 +28,12 @@ public class ChatRoom {
                     String chatRoomName,
                     String profileImg,
                     Instant createdAt,
-                    Instant modifiedAt,
-                    String linkId) {
+                    Instant modifiedAt) {
         this.id = id;
         this.chatRoomName = chatRoomName;
         this.profileImg = profileImg;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-        this.linkId = linkId;
     }
 
     @DynamoDbPartitionKey
@@ -68,13 +65,6 @@ public class ChatRoom {
         return modifiedAt;
     }
 
-    @DynamoDbAttribute("linkId")
-    @NotBlank
-    public String getLinkId() {
-        return linkId;
-    }
-
     public void setModifiedAt(Instant now) {
-
     }
 }

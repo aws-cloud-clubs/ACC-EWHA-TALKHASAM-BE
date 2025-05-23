@@ -1,10 +1,13 @@
 package com.talkhasam.artichat.domain.chatroom.dto;
 
+import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
+
+import java.time.Instant;
+
 public record ChatRoomResponseDto(
         Long id,
         String chatRoomName,
         String profileImg,
-        String linkId,
         Instant createdAt,
         Instant modifiedAt
 ) {
@@ -13,7 +16,6 @@ public record ChatRoomResponseDto(
                 chatRoom.getId(),
                 chatRoom.getChatRoomName(),
                 chatRoom.getProfileImg(),
-                chatRoom.getLinkId(),
                 chatRoom.getCreatedAt(),
                 chatRoom.getModifiedAt()
         );

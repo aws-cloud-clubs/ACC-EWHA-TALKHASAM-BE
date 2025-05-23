@@ -1,5 +1,7 @@
 package com.talkhasam.artichat.domain.chatroom.controller;
 
+import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomResponseDto;
+import com.talkhasam.artichat.domain.chatroom.dto.UpdateProfileImageRequestDto;
 import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
 import com.talkhasam.artichat.domain.chatroom.service.ChatRoomService;
 import jakarta.validation.Valid;
@@ -50,7 +52,7 @@ public class ChatRoomController {
     @PatchMapping("/{id}")
     public ResponseEntity<ChatRoomResponseDto> updateProfileImage(
             @PathVariable Long id,
-            @RequestBody @Valid UpdateProfileImageRequest request) {
+            @RequestBody @Valid UpdateProfileImageRequestDto request) {
 
         ChatRoom updated = service.updateProfileImage(id, request.profileImg());
         return ResponseEntity.ok(ChatRoomResponseDto.from(updated));

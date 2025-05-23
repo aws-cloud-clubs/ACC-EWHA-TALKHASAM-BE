@@ -2,10 +2,14 @@ package com.talkhasam.artichat.domain.chatroom.service;
 
 import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
 import com.talkhasam.artichat.domain.chatroom.repository.ChatRoomRepository;
+import com.talkhasam.artichat.global.exception.CustomException;
+import com.talkhasam.artichat.global.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+
+import static com.talkhasam.artichat.global.util.TsidGenerator.nextLong;
 
 @Service
 public class ChatRoomService {
@@ -18,10 +22,10 @@ public class ChatRoomService {
 
     /** 채팅방 생성 */
     public ChatRoom createChatRoom(ChatRoom chatRoom) {
-        chatRoom.setId(idGenerator.nextId());
+        Long chatRoomId = nextLong();
+        chatRoom.setId(chatRoomId);
         chatRoom.setCreatedAt(Instant.now());
         chatRoom.setModifiedAt(Instant.now());
-        chatRoom.setLinkId(linkGenerator.generate());
         return chatRoomRepository.save(chatRoom);
     }
 
@@ -37,10 +41,9 @@ public class ChatRoomService {
     }
 
     /** 프로필 수정 */
-    @Transactional
     public ChatRoom updateProfileImage(Long chatRoomId, String profileImg) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new EntityNotFoundException("ChatRoom not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
 
         chatRoom.setProfileImg(profileImg);
         chatRoom.setModifiedAt(Instant.now());
