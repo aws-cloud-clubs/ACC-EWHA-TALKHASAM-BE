@@ -5,6 +5,7 @@ import com.talkhasam.artichat.global.redis.RedisStompBridge;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
@@ -23,7 +24,8 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisHost, redisPort);
+        RedisStandaloneConfiguration standaloneConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
+        return new LettuceConnectionFactory(standaloneConfig);
     }
 
     @Bean
@@ -49,6 +51,7 @@ public class RedisConfig {
         container.addMessageListener(bridge, new PatternTopic("/topic/chatroom/*"));
         return container;
     }
+
     @Bean
     public MessageListenerAdapter listenerAdapter(RedisStompBridge redisStompBridge) {
         return new MessageListenerAdapter(redisStompBridge, "onMessage");
