@@ -41,7 +41,7 @@ public class JwtHandshakeHandler extends DefaultHandshakeHandler {
 
         String userId;
         try {
-            userId = customTokenService.extractChatUserId(jwt);
+            userId = customTokenService.extractUsername(jwt);
         } catch (CustomException | JwtException | IllegalArgumentException ex) {
             // CustomException 포함 모든 파싱 오류를 HandshakeFailureException 으로 변환
             throw new HandshakeFailureException("JWT parsing failed: " + ex.getMessage(), ex);

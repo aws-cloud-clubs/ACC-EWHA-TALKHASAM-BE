@@ -9,7 +9,8 @@ import com.talkhasam.artichat.global.exception.ErrorCode;
 import com.talkhasam.artichat.global.security.CustomTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -82,7 +83,8 @@ public class ChatUserService {
         throw new CustomException(ErrorCode.CHAT_USER_NOT_FOUND);
     }
 
-    public ChatUser getCurrentChatUser(UserDetails userDetails) {
-        return getChatUserById(Long.parseLong(userDetails.getUsername()));
+    public ChatUser getCurrentChatUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return getChatUserById(Long.parseLong(authentication.getName()));
     }
 }

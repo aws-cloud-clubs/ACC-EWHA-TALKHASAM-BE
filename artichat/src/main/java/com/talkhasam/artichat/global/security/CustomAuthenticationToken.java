@@ -10,12 +10,12 @@ import java.util.Collection;
 public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
     @Getter
-    private final Long userId;
+    private final String username;
     private final Object credentials;  // password or null
 
-    public CustomAuthenticationToken(long userId, Object credentials) {
+    public CustomAuthenticationToken(String username, Object credentials) {
         super(null);
-        this.userId = userId;
+        this.username = username;
         this.credentials = credentials;
         setAuthenticated(false);
     }
@@ -25,7 +25,7 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
                                      Object credentials,
                                      Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
-        this.userId = null;
+        this.username = null;
         this.credentials = credentials;
         setAuthenticated(true);
         super.setDetails(principal);
