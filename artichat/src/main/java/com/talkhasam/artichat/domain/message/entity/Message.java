@@ -20,8 +20,8 @@ import java.time.Instant;
 public class Message {
 
     private long chatRoomId;    // Partition Key
-    private long id;            // Sort Key / 메시지 고유 ID
-    private long chatUserId;    // GSI Partition Key
+    private long id;            // Sort Key (메시지 고유 ID)
+    private long chatUserId;    // GSI (Partition Key)
     private String nickname;
     private boolean isOwner;
     private String content;

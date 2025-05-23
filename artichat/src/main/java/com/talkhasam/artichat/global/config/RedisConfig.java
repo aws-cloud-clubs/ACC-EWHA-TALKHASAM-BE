@@ -28,23 +28,19 @@ public class RedisConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         // 서버 정보
-        RedisStandaloneConfiguration serverConfig =
-                new RedisStandaloneConfiguration(redisHost, redisPort);
+        RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
 
-        // 클라이언트에 TLS 옵션 적용
+        // 클라이언트 정보 (SSL 사용)
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(10))
-                .useSsl()                             // SSL 켜기
+                .useSsl()
                 .build();
         return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
 
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(
-            LettuceConnectionFactory connectionFactory,
-            ObjectMapper mapper
-    ) {
+    public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory connectionFactory, ObjectMapper mapper) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(connectionFactory);
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(mapper);
@@ -54,13 +50,10 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisMessageListenerContainer redisListenerContainer(
-            LettuceConnectionFactory connectionFactory,
-            RedisStompBridge bridge
-    ) {
+    public RedisMessageListenerContainer redisListenerContainer(LettuceConnectionFactory connectionFactory, RedisStompBridge redisStompBridge) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(bridge, new PatternTopic("/topic/chatroom/*"));
+        container.addMessageListener(redisStompBridge, new PatternTopic("/topic/chatroom/*"));
         return container;
     }
 
