@@ -12,4 +12,5 @@ public interface ChatRoomRepository {
     ChatRoom save(ChatRoom chatRoom);
     void deleteById(long chatRoomId);
     List<ChatRoom> findAll();
+    void updateProfileImg(long chatRoomId, String profileImg);
 }

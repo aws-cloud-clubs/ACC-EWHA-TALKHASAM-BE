@@ -3,6 +3,7 @@ package com.talkhasam.artichat.domain.chatroom.entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
@@ -12,6 +13,7 @@ import java.time.Instant;
 
 @Setter
 @DynamoDbBean
+@Builder
 public class ChatRoom {
 
     private long id;

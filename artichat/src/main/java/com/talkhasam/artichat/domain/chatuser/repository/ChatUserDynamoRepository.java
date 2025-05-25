@@ -2,6 +2,7 @@ package com.talkhasam.artichat.domain.chatuser.repository;
 
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -65,6 +66,28 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
         return table.scan(scanReq)
                 .items()
                 .stream()
+                .findFirst();
+    }
+
+    @Override
+    public Optional<ChatUser> findByChatRoomIdAndIsOwner(long chatRoomId, boolean isOwner) {
+        // GSI를 사용하여 chatRoomId로 쿼리 후 isOwner 필터링
+        QueryConditional keyCondition = QueryConditional.keyEqualTo(
+                Key.builder().partitionValue(chatRoomId).build()
+        );
+
+        // GSI에서 쿼리 후 isOwner 조건으로 필터링
+        return table.index("chatRoomId-index")
+                .query(r -> r
+                        .queryConditional(keyCondition)
+                        .filterExpression(Expression.builder()
+                                .expression("isOwner = :isOwner")
+                                .putExpressionValue(":isOwner",
+                                        AttributeValue.builder().bool(isOwner).build())
+                                .build())
+                )
+                .stream()
+                .flatMap(page -> page.items().stream())
                 .findFirst();
     }
 }
