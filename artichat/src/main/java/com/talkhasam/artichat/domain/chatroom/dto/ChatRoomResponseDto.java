@@ -4,20 +4,19 @@ import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
 
 import java.time.Instant;
 
-public record ChatRoomResponseDto(
-        Long id,
-        String chatRoomName,
-        String profileImg,
-        Instant createdAt,
-        Instant modifiedAt
-) {
-    public static ChatRoomResponseDto from(ChatRoom chatRoom) {
-        return new ChatRoomResponseDto(
-                chatRoom.getId(),
-                chatRoom.getChatRoomName(),
-                chatRoom.getProfileImg(),
-                chatRoom.getCreatedAt(),
-                chatRoom.getModifiedAt()
-        );
-    }
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.Instant;
+
+@Getter
+@Builder
+public class ChatRoomResponseDto {
+
+    private Long chatRoomId;
+    private String chatRoomName;
+    private String owner;
+    private String profileImg;
+    private Instant createdAt;
+    private Instant modifiedAt;
 }

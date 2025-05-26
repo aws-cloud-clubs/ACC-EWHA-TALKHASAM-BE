@@ -1,8 +1,11 @@
 package com.talkhasam.artichat.domain.chatroom.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
-public record UpdateProfileImageRequestDto(
-        @NotBlank
-        String profileImg
-) {}
+@Getter
+@Setter
+public class UpdateProfileImageRequestDto {
+        private MultipartFile profileImg;
+}

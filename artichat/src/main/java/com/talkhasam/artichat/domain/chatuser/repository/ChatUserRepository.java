@@ -9,4 +9,5 @@ public interface ChatUserRepository {
     Optional<ChatUser> findById(long id);
     Optional<ChatUser> findByChatRoomIdAndNickname(long chatRoomId, String nickname);
     int countByChatRoomId(long chatRoomId);
+    Optional<ChatUser> findByChatRoomIdAndIsOwner(long chatRoomId, boolean isOwner);
 }

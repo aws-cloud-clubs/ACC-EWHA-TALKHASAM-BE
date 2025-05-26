@@ -57,7 +57,7 @@ public class ChatUser {
     }
 
     @DynamoDbAttribute("isOwner")
-    public boolean isOwner() {
+    public boolean getIsOwner() {
         return isOwner;
     }
 }
