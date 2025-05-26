@@ -27,6 +27,10 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
+        if (redisHost.equals("localhost")) {
+            return new LettuceConnectionFactory(redisHost, redisPort);
+        }
+        
         // 서버 정보
         RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
 
