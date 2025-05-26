@@ -1,5 +1,6 @@
 package com.talkhasam.artichat.domain.chatroom.entity;
 
+import com.talkhasam.artichat.global.util.InstantStringConverter;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbConvertedBy;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.time.Instant;
@@ -56,6 +58,7 @@ public class ChatRoom {
     }
 
     @DynamoDbAttribute("createdAt")
+    @DynamoDbConvertedBy(InstantStringConverter.class)
     @NotNull
     public Instant getCreatedAt() {
         return createdAt;
@@ -65,8 +68,5 @@ public class ChatRoom {
     @NotNull
     public Instant getModifiedAt() {
         return modifiedAt;
-    }
-
-    public void setModifiedAt(Instant now) {
     }
 }

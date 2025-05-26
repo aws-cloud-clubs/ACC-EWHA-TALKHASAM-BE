@@ -1,5 +1,6 @@
 package com.talkhasam.artichat.domain.message.entity;
 
+import com.talkhasam.artichat.global.util.InstantStringConverter;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -65,6 +66,7 @@ public class Message {
     }
 
     @DynamoDbAttribute("createdAt")
+    @DynamoDbConvertedBy(InstantStringConverter.class)
     @NotNull
     public Instant getCreatedAt() {
         return createdAt;

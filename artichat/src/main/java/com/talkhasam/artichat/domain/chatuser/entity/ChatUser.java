@@ -1,5 +1,6 @@
 package com.talkhasam.artichat.domain.chatuser.entity;
 
+import com.talkhasam.artichat.global.util.InstantStringConverter;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,7 +19,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatUser {
-
     private long id;
     private long chatRoomId;    // GSI (Partition Key)
     private String nickname;
@@ -33,7 +33,9 @@ public class ChatUser {
     }
 
     @DynamoDbSecondaryPartitionKey(indexNames = "chatRoomId-index")
-    public long getChatRoomId() { return chatRoomId; }
+    public long getChatRoomId() {
+        return chatRoomId;
+    }
 
     @DynamoDbAttribute("nickname")
     @NotBlank
@@ -48,20 +50,16 @@ public class ChatUser {
     }
 
     @DynamoDbAttribute("createdAt")
+    @DynamoDbConvertedBy(InstantStringConverter.class)
     @NotNull
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public boolean getIsOwnerBooleanValue() {
-        return isOwner;
-    }
-
     // GSI Sort Key용으로 문자열 변환
-    @DynamoDbSecondarySortKey(indexNames = "chatRoomId-getIsOwnerBooleanValue-index")
     @DynamoDbAttribute("isOwner")
     @NotNull
-    public String getIsOwner() {
-        return Boolean.toString(isOwner);
+    public boolean isOwner() {
+        return isOwner;
     }
 }

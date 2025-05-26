@@ -2,6 +2,7 @@ package com.talkhasam.artichat.domain.chatuser.repository;
 
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ChatUserDynamoRepository implements ChatUserRepository {
@@ -22,6 +24,7 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
     @Override
     public ChatUser save(ChatUser chatUser) {
         table.putItem(chatUser);
+        log.info("ChatUser saved: {}, isOwner: {}", chatUser, chatUser.isOwner());
         return chatUser;
     }
 
@@ -73,19 +76,26 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
                 .findFirst();
     }
 
-
     @Override
     public Optional<ChatUser> findByChatRoomIdAndIsOwner(long chatRoomId, boolean isOwner) {
+        Expression filter = Expression.builder()
+                .expression("isOwner = :owner")
+                .putExpressionValue(":owner", AttributeValue.builder().bool(isOwner).build())
+                .build();
+
+        // chatRoomId-index로 조회
+        QueryEnhancedRequest req = QueryEnhancedRequest.builder()
+                .queryConditional(QueryConditional.keyEqualTo(Key.builder()
+                        .partitionValue(chatRoomId)
+                        .build()))
+                // isOwner는 필터로 처리
+                .filterExpression(filter)
+                .limit(1)
+                .build();
+
         return table
-                .index("chatRoomId-isOwner-index")
-                .query(r -> r.queryConditional(
-                                QueryConditional.keyEqualTo(Key.builder()
-                                        .partitionValue(chatRoomId)
-                                        .sortValue(Boolean.toString(isOwner))
-                                        .build()
-                                ))
-                        .limit(1)
-                )
+                .index("chatRoomId-index")
+                .query(req)
                 .stream()
                 .flatMap(page -> page.items().stream())
                 .findFirst();
