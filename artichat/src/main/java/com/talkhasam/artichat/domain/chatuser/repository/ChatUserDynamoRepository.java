@@ -2,7 +2,6 @@ package com.talkhasam.artichat.domain.chatuser.repository;
 
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
@@ -71,22 +70,29 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
 
     @Override
     public Optional<ChatUser> findByChatRoomIdAndIsOwner(long chatRoomId, boolean isOwner) {
-        // GSI를 사용하여 chatRoomId로 쿼리 후 isOwner 필터링
-        QueryConditional keyCondition = QueryConditional.keyEqualTo(
-                Key.builder().partitionValue(chatRoomId).build()
+        // ❶ GSI 파티션 키 조건
+        QueryConditional keyCond = QueryConditional.keyEqualTo(
+                Key.builder()
+                        .partitionValue(chatRoomId)
+                        .build()
         );
 
-        // GSI에서 쿼리 후 isOwner 조건으로 필터링
-        return table.index("chatRoomId-index")
+        // ❷ isOwner 필터 표현식
+        Expression filterExp = Expression.builder()
+                .expression("isOwner = :owner")
+                .putExpressionValue(":owner",
+                        AttributeValue.builder().bool(isOwner).build())
+                .build();
+
+        // ❸ GSI 쿼리 + 필터 + limit + Stream 처리
+        return table
+                .index("chatRoomId-index")
                 .query(r -> r
-                        .queryConditional(keyCondition)
-                        .filterExpression(Expression.builder()
-                                .expression("isOwner = :isOwner")
-                                .putExpressionValue(":isOwner",
-                                        AttributeValue.builder().bool(isOwner).build())
-                                .build())
+                        .queryConditional(keyCond)
+                        .filterExpression(filterExp)
+                        .limit(1)
                 )
-                .stream()
+                .stream()                          // Stream<Page<ChatUser>>
                 .flatMap(page -> page.items().stream())
                 .findFirst();
     }
