@@ -23,7 +23,7 @@ public class ChatUserController {
     @Operation(summary = "새 채팅방에 로그인 또는 가입")
     @PostMapping("/login")
     public ResponseEntity<ChatUserLoginResponseDto> login(@RequestBody @Valid ChatUserLoginRequestDto requestDto) {
-        return ResponseEntity.ok(new ChatUserLoginResponseDto(chatUserService.loginOrRegister(requestDto)));
+        return ResponseEntity.ok(chatUserService.loginOrRegister(requestDto));
     }
 
 //    @Operation(summary = "액세스토큰으로 내 정보 조회")
