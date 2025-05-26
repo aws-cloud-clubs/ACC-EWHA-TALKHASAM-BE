@@ -71,14 +71,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new RuntimeException("채팅방 소유자를 찾을 수 없습니다. 채팅방 ID: " + chatRoomId));
 
         // 3. DTO로 변환하여 반환
-        return ChatRoomResponseDto.builder()
-                .chatRoomId(chatRoom.getId())
-                .chatRoomName(chatRoom.getChatRoomName())
-                .owner(owner)
-                .profileImg(chatRoom.getProfileImg())
-                .createdAt(chatRoom.getCreatedAt())
-                .modifiedAt(chatRoom.getModifiedAt())
-                .build();
+        return ChatRoomResponseDto.from(chatRoom, owner);
     }
 
 
