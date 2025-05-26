@@ -7,7 +7,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
-import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.Optional;
@@ -50,42 +50,44 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
             long chatRoomId,
             String nickname
     ) {
-        // chatRoomId + nickname 조건으로만 Scan
-        ScanEnhancedRequest scanReq = ScanEnhancedRequest.builder()
+        // PartitionKey 조회 + nickname 필터
+        QueryEnhancedRequest queryReq = QueryEnhancedRequest.builder()
+                .queryConditional(QueryConditional.keyEqualTo(
+                        Key.builder()
+                                .partitionValue(chatRoomId)
+                                .build()
+                ))
                 .filterExpression(Expression.builder()
-                        .expression("chatRoomId = :rid AND nickname = :nick")
-                        .putExpressionValue(":rid",
-                                AttributeValue.builder().n(Long.toString(chatRoomId)).build())
+                        .expression("nickname = :nick")
                         .putExpressionValue(":nick",
                                 AttributeValue.builder().s(nickname).build())
                         .build())
+                .limit(1)  // 첫 매칭만
                 .build();
 
-        // 첫 매칭 유저 반환 (비밀번호 검증은 서비스 레이어에서)
-        return table.scan(scanReq)
-                .items()
+        return table
+                .index("chatRoomId-index")
+                .query(queryReq)
                 .stream()
+                .flatMap(page -> page.items().stream())
                 .findFirst();
     }
+
+
     @Override
     public Optional<ChatUser> findByChatRoomIdAndIsOwner(long chatRoomId, boolean isOwner) {
-        // chatRoomId와 isOwner를 동시에 필터링
-        Expression filter = Expression.builder()
-                .expression("chatRoomId = :rid AND isOwner = :owner")
-                .putExpressionValue(":rid", AttributeValue.builder().n(Long.toString(chatRoomId)).build())
-                .putExpressionValue(":owner", AttributeValue.builder().bool(isOwner).build())
-                .build();
-
-        ScanEnhancedRequest scanReq = ScanEnhancedRequest.builder()
-                .filterExpression(filter)
-                .limit(1) // 첫 번째 결과만 필요하므로 limit 적용
-                .build();
-
-        // Optional<ChatUser> 형태로 반환
-        return table.scan(scanReq)
-                .items()
+        return table
+                .index("chatRoomId-isOwner-index")
+                .query(r -> r.queryConditional(
+                                QueryConditional.keyEqualTo(Key.builder()
+                                        .partitionValue(chatRoomId)
+                                        .sortValue(Boolean.toString(isOwner))
+                                        .build()
+                                ))
+                        .limit(1)
+                )
                 .stream()
+                .flatMap(page -> page.items().stream())
                 .findFirst();
     }
-
 }

@@ -8,10 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 import java.time.Instant;
 
@@ -27,7 +24,7 @@ public class ChatUser {
     private String nickname;
     private String password;
     private Instant createdAt;
-    private boolean isOwner;
+    private boolean isOwner;      // 비즈니스용 불리언 필드
 
     @DynamoDbPartitionKey
     @Positive
@@ -56,8 +53,15 @@ public class ChatUser {
         return createdAt;
     }
 
-    @DynamoDbAttribute("isOwner")
-    public boolean getIsOwner() {
+    public boolean getIsOwnerBooleanValue() {
         return isOwner;
+    }
+
+    // GSI Sort Key용으로 문자열 변환
+    @DynamoDbSecondarySortKey(indexNames = "chatRoomId-getIsOwnerBooleanValue-index")
+    @DynamoDbAttribute("isOwner")
+    @NotNull
+    public String getIsOwner() {
+        return Boolean.toString(isOwner);
     }
 }

@@ -8,6 +8,7 @@ import com.talkhasam.artichat.domain.chatroom.service.ChatRoomService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +21,8 @@ public class ChatRoomController {
     private final ChatRoomService service;
 
     /** 생성 (201 Created + Location 헤더) */
-    @PostMapping
-    public ResponseEntity<ChatRoomPostResponseDto> createChatRoom(@ModelAttribute ChatRoomRequestDto requestDto) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ChatRoomPostResponseDto> createChatRoom(@RequestBody ChatRoomRequestDto requestDto) {
         ChatRoomPostResponseDto response = service.createChatRoom(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -35,7 +36,7 @@ public class ChatRoomController {
     }
 
     /** 프로필 수정 (200 OK) */
-    @PutMapping("/{chatRoomId}/profile-image")
+    @PutMapping(value = "/{chatRoomId}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateChatRoomProfileImg(
             @PathVariable Long chatRoomId,
             @ModelAttribute UpdateProfileImageRequestDto dto) {

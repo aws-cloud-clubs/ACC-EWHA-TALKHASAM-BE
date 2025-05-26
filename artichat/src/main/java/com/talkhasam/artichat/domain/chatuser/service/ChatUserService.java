@@ -45,7 +45,7 @@ public class ChatUserService {
         ChatUser chatUser = saveOrGet(chatRoomId, nickname, password);
         // 토큰 생성
         String accessToken = tokenService.generateToken(String.valueOf(chatUser.getId()));
-        return new ChatUserLoginDataDto(accessToken, chatUser.getIsOwner());
+        return new ChatUserLoginDataDto(accessToken, chatUser.getIsOwnerBooleanValue());
     }
 
     // 기존 유저 조회 후 비밀번호 인증, 없으면 신규 생성
