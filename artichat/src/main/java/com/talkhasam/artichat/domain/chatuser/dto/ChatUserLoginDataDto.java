@@ -1,6 +1,6 @@
 package com.talkhasam.artichat.domain.chatuser.dto;
 
-public record ChatUserLoginResponseDto (
+public record ChatUserLoginDataDto(
     String accessToken,
     Boolean isOwner
 ) {}

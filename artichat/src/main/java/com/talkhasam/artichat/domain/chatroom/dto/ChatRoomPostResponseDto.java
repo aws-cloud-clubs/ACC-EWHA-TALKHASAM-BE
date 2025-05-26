@@ -1,15 +1,8 @@
 package com.talkhasam.artichat.domain.chatroom.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.talkhasam.artichat.domain.chatuser.dto.ChatUserLoginDataDto;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ChatRoomPostResponseDto {
-    private String chatRoomId;
-
-}
+public record ChatRoomPostResponseDto (
+        long chatRoomId,
+        ChatUserLoginDataDto chatUserLoginDataDto
+){}

@@ -3,6 +3,7 @@ package com.talkhasam.artichat.domain.message.controller;
 import com.talkhasam.artichat.domain.message.dto.MessageListResponseDto;
 import com.talkhasam.artichat.domain.message.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Messages")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
