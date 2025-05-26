@@ -36,26 +36,19 @@ public class ChatUserService {
         chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         // 로그인 또는 신규 회원가입 처리
-        return createUser(chatRoomId, requestDto.nickname(), requestDto.password(), null);
-    }
-
-    // 로그인 또는 회원가입 후 JWT 토큰 반환
-    public ChatUserLoginDataDto createUser(long chatRoomId, String nickname, String password, Boolean isOwner) {
-        // 로그인 또는 신규 회원가입 처리
-        ChatUser chatUser = saveOrGet(chatRoomId, nickname, password, isOwner);
+        ChatUser chatUser = saveOrGet(chatRoomId, requestDto.nickname(), requestDto.password());
         // 토큰 생성
         String accessToken = tokenService.generateToken(String.valueOf(chatUser.getId()), chatUser.isOwner());
         return new ChatUserLoginDataDto(accessToken, chatUser.getId(), chatUser.isOwner());
     }
 
     // 기존 유저 조회 후 비밀번호 인증, 없으면 신규 생성
-    private ChatUser saveOrGet(long chatRoomId, String nickname, String rawPassword, boolean isOwner) {
+    private ChatUser saveOrGet(long chatRoomId, String nickname, String rawPassword) {
         // 채팅방 id와 닉네임으로 조회
         Optional<ChatUser> existingUser = chatUserRepository.findByChatRoomIdAndNickname(chatRoomId, nickname);
 
         if (existingUser.isPresent()) {
             ChatUser chatUser = existingUser.get();
-
             // 비밀번호 검사 (평문 vs 해시)
             if (encoder.matches(rawPassword, chatUser.getPassword())) {
                 log.info("ChatUser login succeeded: id={}", chatUser.getId());
@@ -72,12 +65,29 @@ public class ChatUserService {
                 .nickname(nickname)
                 .password(encodedPassword)
                 .createdAt(Instant.now())
-                .isOwner(isOwner)
+                .isOwner(false)
                 .build();
-
         ChatUser savedChatUser = chatUserRepository.save(newChatUser);
         log.info("New chatUser created: id={} chatRoomId={} nickname={}", savedChatUser.getId(), chatRoomId, nickname);
         return savedChatUser;
+    }
+
+    // 로그인 또는 회원가입 후 JWT 토큰 반환
+    public ChatUserLoginDataDto createOwnerUser(long chatRoomId, String nickname, String rawPassword) {
+        // 로그인 또는 신규 회원가입 처리
+        String encodedPassword = encoder.encode(rawPassword);
+        ChatUser newChatUser = ChatUser.builder()
+                .id(nextLong())
+                .chatRoomId(chatRoomId)
+                .nickname(nickname)
+                .password(encodedPassword)
+                .createdAt(Instant.now())
+                .isOwner(true)
+                .build();
+        ChatUser savedChatUser = chatUserRepository.save(newChatUser);
+        log.info("New owner chatUser created: id={} chatRoomId={} nickname={}", savedChatUser.getId(), chatRoomId, nickname);
+        String accessToken = tokenService.generateToken(String.valueOf(savedChatUser.getId()), savedChatUser.isOwner());
+        return new ChatUserLoginDataDto(accessToken, savedChatUser.getId(), savedChatUser.isOwner());
     }
 
     public ChatUser getChatUserById(long id) {
