@@ -64,14 +64,15 @@ jobs:
           cat <<'JSON' > ssm-deploy.json
           {
             "commands": [
-              "sudo docker ps -q --filter 'name=artichat' | xargs -r sudo docker rm -f",
-              "echo \"${{ secrets.DOCKER_COMPOSE }}\" | base64 -d > /home/ec2-user/docker-compose.yml",
-              "cd /home/ec2-user && sudo docker compose down --remove-orphans",
+              "sudo docker ps -q --filter 'name=app' | xargs -r sudo docker rm -f",
+              "echo \"${{ secrets.DOCKER_COMPOSE_ECR }}\" | base64 -d > /home/ec2-user/docker-compose.yml",
+              "sudo docker compose -f /home/ec2-user/docker-compose.yml down --remove-orphans",
               "aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_REPO_URI }}",
-              "cd /home/ec2-user && sudo docker pull ${{ secrets.ECR_REPO }}:latest",
-              "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
+              "sudo docker pull ${{ secrets.ECR_REPO_URI }}:latest",
+              "sudo docker compose -f /home/ec2-user/docker-compose.yml up -d --pull always --force-recreate",
               "sudo docker system prune -af"
             ]
+
           }
           JSON
 
