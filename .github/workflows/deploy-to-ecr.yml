@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose
+name: CI/CD with Docker Compose (ECR)
 
 on:
   push:
@@ -45,41 +45,38 @@ jobs:
           chmod +x ./gradlew
           ./gradlew build -x test
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Docker build & push
-        uses: docker/build-push-action@v6
-        with:
-          context: ./artichat
-          file: ./artichat/Dockerfile
-          push: true
-          platforms: linux/amd64
-          tags: ${{ secrets.DOCKER_REPO }}:latest
+      - name: Docker build & push to ECR
+        run: |
+          IMAGE_TAG=${{ secrets.ECR_REPO }}:latest
+          docker build -t $IMAGE_TAG ./artichat -f ./artichat/Dockerfile
+          docker push $IMAGE_TAG
+
       - name: Deploy via SSM
         run: |
           INSTANCE_ID=${{ secrets.EC2_INSTANCE_ID }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
 
-          # 1) SSM 파라미터 파일 생성
+          # SSM 파라미터 파일 생성 (ECR 이미지 사용)
           cat <<'JSON' > ssm-deploy.json
           {
             "commands": [
               "sudo docker ps -q --filter 'name=artichat' | xargs -r sudo docker rm -f",
               "echo \"${{ secrets.DOCKER_COMPOSE }}\" | base64 -d > /home/ec2-user/docker-compose.yml",
               "cd /home/ec2-user && sudo docker compose down --remove-orphans",
-              "cd /home/ec2-user && sudo docker pull ${{ secrets.DOCKER_REPO }}:latest",
+              "aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin ${{ secrets.ECR_REPO_URI }}",
+              "cd /home/ec2-user && sudo docker pull ${{ secrets.ECR_REPO }}:latest",
               "cd /home/ec2-user && sudo docker compose up -d --pull always --force-recreate",
               "sudo docker system prune -af"
             ]
           }
           JSON
 
-          # 2) SSM으로 EC2에 배포 명령 전송
           aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name AWS-RunShellScript \
-            --comment "Deploy via Docker Compose" \
+            --comment "Deploy via Docker Compose with ECR" \
             --parameters file://ssm-deploy.json
