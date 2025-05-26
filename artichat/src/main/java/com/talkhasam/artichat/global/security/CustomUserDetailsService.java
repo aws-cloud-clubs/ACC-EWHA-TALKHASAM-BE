@@ -5,7 +5,6 @@ import com.talkhasam.artichat.domain.chatuser.repository.ChatUserRepository;
 import com.talkhasam.artichat.global.exception.CustomException;
 import com.talkhasam.artichat.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -15,15 +14,11 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
     private final ChatUserRepository chatUserRepository;
 
-    public UserDetails loadUserById(long userId) {
+    public CustomUserDetails loadUserById(long userId) {
         ChatUser user = chatUserRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ACCESS_TOKEN));
-        return User.withUsername(String.valueOf(user.getId())) // principal
-                .password(user.getPassword())
-                .roles("USER")
-                .build();
+        return new CustomUserDetails(user);
     }
-
     @Override
     public UserDetails loadUserByUsername(String username) {
         return loadUserById(Long.parseLong(username));
