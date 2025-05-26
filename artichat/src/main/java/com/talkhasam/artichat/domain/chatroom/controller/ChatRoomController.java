@@ -1,5 +1,6 @@
 package com.talkhasam.artichat.domain.chatroom.controller;
 
+import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomPostResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomRequestDto;
 import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.UpdateProfileImageRequestDto;
@@ -24,8 +25,8 @@ public class ChatRoomController {
 
     /** 생성 (201 Created + Location 헤더) */
     @PostMapping
-    public ResponseEntity<ChatRoomResponseDto> createChatRoom(@ModelAttribute ChatRoomRequestDto requestDto) {
-        ChatRoomResponseDto response = service.createChatRoom(requestDto);
+    public ResponseEntity<ChatRoomPostResponseDto> createChatRoom(@ModelAttribute ChatRoomRequestDto requestDto) {
+        ChatRoomPostResponseDto response = service.createChatRoom(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
