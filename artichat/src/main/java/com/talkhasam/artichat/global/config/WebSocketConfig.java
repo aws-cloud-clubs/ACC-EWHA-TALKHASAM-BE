@@ -1,6 +1,6 @@
 package com.talkhasam.artichat.global.config;
 
-import com.talkhasam.artichat.global.security.CustomTokenService;
+import com.talkhasam.artichat.global.security.CustomAuthenticationProvider;
 import com.talkhasam.artichat.global.security.JwtHandshakeHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -11,19 +11,17 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private final CustomTokenService customTokenService;
+    private final CustomAuthenticationProvider customAuthenticationProvider;
     private final JwtHandshakeHandler handshakeHandler;
 
     @Override
@@ -47,16 +45,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String bearer = accessor.getFirstNativeHeader("Authorization");
-                    if (bearer != null && bearer.startsWith("Bearer ")) {
-                        String token = bearer.substring(7);
-                        // JWT 에서 chatUserId만 뽑아 Principal 에 세팅
-                        String userId = customTokenService.extractUsername(token);
-                        Authentication auth = new UsernamePasswordAuthenticationToken(
-                                userId, null, List.of()
-                        );
-                        accessor.setUser(auth);
-                    }
+                    // String token = accessor.getFirstNativeHeader("Authorization");
+                    Authentication auth = customAuthenticationProvider.authenticate(
+                            SecurityContextHolder.getContext().getAuthentication());
+                    accessor.setUser(auth);
                 }
                 return message;
             }
