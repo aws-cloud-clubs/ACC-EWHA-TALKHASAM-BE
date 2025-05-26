@@ -77,8 +77,8 @@ public class SecurityConfig {
                         .requestMatchers("/error", "/favicon.ico",
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**", "/webjars/**").permitAll()
                         .requestMatchers("/chatusers/login").permitAll()
-                        .requestMatchers("/app/**").authenticated()
                         .requestMatchers("/ws-chat/**").permitAll()
+                        .requestMatchers("/app/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
