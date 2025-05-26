@@ -10,11 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ChatRoomPostResponseDto {
-    private Long chatRoomId;
+    private String chatRoomId;
 
-    public static ChatRoomResponseDto from(Long chatRoomId) {
-        return ChatRoomResponseDto.builder()
-                .chatRoomId(chatRoomId)
-                .build();
-    }
 }

@@ -28,7 +28,7 @@ public class ChatRoomService {
     private final S3Uploader s3Uploader;
 
     /** 채팅방 생성 */
-    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto dto) {
+    public ChatRoomPostResponseDto createChatRoom(ChatRoomRequestDto dto) {
         Long chatRoomId = nextLong();
 
         String imageUrl = null;
@@ -56,7 +56,9 @@ public class ChatRoomService {
 
         chatUserRepository.save(chatUser);
 
-        return ChatRoomPostResponseDto.from(chatRoomId);
+        return ChatRoomPostResponseDto.builder()
+                .chatRoomId(String.valueOf(chatRoomId))
+                .build();
     }
 
     /** 채팅방 정보 조회 */
