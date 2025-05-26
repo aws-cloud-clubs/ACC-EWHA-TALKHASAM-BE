@@ -50,16 +50,13 @@ public class MessageSendService {
         String selfTopic = "/topic/chatrooms/" + chatRoomId + "/messages/user/" + loginChatUserId;
 
         if (isOwner) {
-            // 아티스트는 자신 토픽과 팬 전체 토픽으로 전송
+            // 아티스트는 자신 토픽에만 전송
             template.convertAndSend(artistTopic, responseDto);
             redisService.publish(artistTopic, responseDto);
-
+        } else {
+            // 팬은 fans 토픽과 자기 토픽으로 전송
             template.convertAndSend(fansTopic, responseDto);
             redisService.publish(fansTopic, responseDto);
-        } else {
-            // 팬은 아티스트 토픽과 자기 토픽으로 전송
-            template.convertAndSend(artistTopic, responseDto);
-            redisService.publish(artistTopic, responseDto);
 
             template.convertAndSend(selfTopic, responseDto);
             redisService.publish(selfTopic, responseDto);
