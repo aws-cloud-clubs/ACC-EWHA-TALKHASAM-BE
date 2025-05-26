@@ -2,6 +2,7 @@ package com.talkhasam.artichat.domain.chatuser.service;
 
 import com.talkhasam.artichat.domain.chatroom.repository.ChatRoomRepository;
 import com.talkhasam.artichat.domain.chatuser.dto.ChatUserLoginRequestDto;
+import com.talkhasam.artichat.domain.chatuser.dto.ChatUserLoginResponseDto;
 import com.talkhasam.artichat.domain.chatuser.entity.ChatUser;
 import com.talkhasam.artichat.domain.chatuser.repository.ChatUserRepository;
 import com.talkhasam.artichat.global.exception.CustomException;
@@ -29,7 +30,7 @@ public class ChatUserService {
     private final CustomTokenService tokenService;
 
     // 로그인 또는 회원가입 후 JWT 토큰 반환
-    public String loginOrRegister(ChatUserLoginRequestDto requestDto) {
+    public ChatUserLoginResponseDto loginOrRegister(ChatUserLoginRequestDto requestDto) {
         long chatRoomId = requestDto.chatRoomId();
         // 채팅방 존재 확인
         chatRoomRepository.findById(chatRoomId)
@@ -37,7 +38,8 @@ public class ChatUserService {
         // 로그인 또는 신규 회원가입 처리
         ChatUser chatUser = saveOrGet(chatRoomId, requestDto.nickname(), requestDto.password());
         // 토큰 생성
-        return tokenService.generateToken(String.valueOf(chatUser.getId()));
+        String accessToken = tokenService.generateToken(String.valueOf(chatUser.getId()));
+        return new ChatUserLoginResponseDto(accessToken, chatUser.getIsOwner());
     }
 
     // 기존 유저 조회 후 비밀번호 인증, 없으면 신규 생성
