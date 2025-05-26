@@ -27,7 +27,6 @@ public class MessageController {
             @RequestParam(defaultValue = "20") @Positive int limit,
             @RequestParam(required = false) Long startId
     ) {
-        var response = messageService.getMessageList(chatRoomId, limit, startId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok( messageService.getMessageListByIsOwnerStatus(chatRoomId, limit, startId));
     }
 }
