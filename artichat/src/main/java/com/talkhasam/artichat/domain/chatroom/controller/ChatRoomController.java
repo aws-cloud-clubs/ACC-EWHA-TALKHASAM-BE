@@ -24,10 +24,11 @@ public class ChatRoomController {
 
     /** 생성 (201 Created + Location 헤더) */
     @PostMapping
-    public ResponseEntity<Void> createChatRoom(@ModelAttribute ChatRoomRequestDto requestDto) {
-        service.createChatRoom(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<ChatRoomResponseDto> createChatRoom(@ModelAttribute ChatRoomRequestDto requestDto) {
+        ChatRoomResponseDto response = service.createChatRoom(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 
     /** 채팅방 정보 조회 **/
     @GetMapping("/{chatRoomId}")
