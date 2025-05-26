@@ -67,33 +67,25 @@ public class ChatUserDynamoRepository implements ChatUserRepository {
                 .stream()
                 .findFirst();
     }
-
     @Override
     public Optional<ChatUser> findByChatRoomIdAndIsOwner(long chatRoomId, boolean isOwner) {
-        // ❶ GSI 파티션 키 조건
-        QueryConditional keyCond = QueryConditional.keyEqualTo(
-                Key.builder()
-                        .partitionValue(chatRoomId)
-                        .build()
-        );
-
-        // ❷ isOwner 필터 표현식
-        Expression filterExp = Expression.builder()
-                .expression("isOwner = :owner")
-                .putExpressionValue(":owner",
-                        AttributeValue.builder().bool(isOwner).build())
+        // chatRoomId와 isOwner를 동시에 필터링
+        Expression filter = Expression.builder()
+                .expression("chatRoomId = :rid AND isOwner = :owner")
+                .putExpressionValue(":rid", AttributeValue.builder().n(Long.toString(chatRoomId)).build())
+                .putExpressionValue(":owner", AttributeValue.builder().bool(isOwner).build())
                 .build();
 
-        // ❸ GSI 쿼리 + 필터 + limit + Stream 처리
-        return table
-                .index("chatRoomId-index")
-                .query(r -> r
-                        .queryConditional(keyCond)
-                        .filterExpression(filterExp)
-                        .limit(1)
-                )
-                .stream()                          // Stream<Page<ChatUser>>
-                .flatMap(page -> page.items().stream())
+        ScanEnhancedRequest scanReq = ScanEnhancedRequest.builder()
+                .filterExpression(filter)
+                .limit(1) // 첫 번째 결과만 필요하므로 limit 적용
+                .build();
+
+        // Optional<ChatUser> 형태로 반환
+        return table.scan(scanReq)
+                .items()
+                .stream()
                 .findFirst();
     }
+
 }
