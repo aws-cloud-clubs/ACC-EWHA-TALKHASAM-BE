@@ -4,6 +4,7 @@ import com.talkhasam.artichat.global.security.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -78,7 +79,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs", "/v3/api-docs/**", "/webjars/**").permitAll()
                         .requestMatchers("/chatusers/login").permitAll()
                         .requestMatchers("/ws-chat/**").permitAll()
-                        .requestMatchers("/chatrooms/{chatRoomId}/messages").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/chatrooms/*/messages").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
