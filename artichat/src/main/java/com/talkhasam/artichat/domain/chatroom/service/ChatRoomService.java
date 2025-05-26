@@ -1,5 +1,6 @@
 package com.talkhasam.artichat.domain.chatroom.service;
 
+import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomPostResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomRequestDto;
 import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.UpdateProfileImageRequestDto;
@@ -27,7 +28,7 @@ public class ChatRoomService {
     private final S3Uploader s3Uploader;
 
     /** 채팅방 생성 */
-    public void createChatRoom(ChatRoomRequestDto dto) {
+    public ChatRoomResponseDto createChatRoom(ChatRoomRequestDto dto) {
         Long chatRoomId = nextLong();
 
         String imageUrl = null;
@@ -54,6 +55,8 @@ public class ChatRoomService {
                 .build();
 
         chatUserRepository.save(chatUser);
+
+        return ChatRoomPostResponseDto.from(chatRoomId);
     }
 
     /** 채팅방 정보 조회 */
