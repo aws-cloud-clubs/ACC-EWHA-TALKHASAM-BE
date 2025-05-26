@@ -21,7 +21,7 @@ public class ChatRoomController {
     private final ChatRoomService service;
 
     /** 생성 (201 Created + Location 헤더) */
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<ChatRoomPostResponseDto> createChatRoom(@RequestBody ChatRoomRequestDto requestDto) {
         ChatRoomPostResponseDto response = service.createChatRoom(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
