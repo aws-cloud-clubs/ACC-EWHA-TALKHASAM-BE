@@ -6,7 +6,6 @@ import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.UpdateProfileImageRequestDto;
 import com.talkhasam.artichat.domain.chatroom.service.ChatRoomService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,7 +21,7 @@ public class ChatRoomController {
 
     /** 생성 (201 Created + Location 헤더) */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ChatRoomPostResponseDto> createChatRoom(@RequestBody @Valid ChatRoomRequestDto requestDto) {
+    public ResponseEntity<ChatRoomPostResponseDto> createChatRoom(@ModelAttribute ChatRoomRequestDto requestDto) {
         ChatRoomPostResponseDto response = service.createChatRoom(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
