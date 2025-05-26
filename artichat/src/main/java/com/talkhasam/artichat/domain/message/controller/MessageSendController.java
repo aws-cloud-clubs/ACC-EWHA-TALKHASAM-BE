@@ -24,10 +24,10 @@ public class MessageSendController {
             @Payload @Valid MessageRequestDto requestDto,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        Long chatUserId = (Long) headerAccessor.getSessionAttributes().get("chatUserId");
+        Long loginChatUserId = (Long) headerAccessor.getSessionAttributes().get("chatUserId");
         messageSendService.sendToChatRoom(
                 chatRoomId,
-                chatUserId,
+                loginChatUserId,
                 requestDto.nickname(),
                 requestDto.isOwner(),
                 requestDto.content()

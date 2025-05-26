@@ -22,7 +22,7 @@ public class MessageSendService {
 
     public void sendToChatRoom(
             long chatRoomId,
-            long chatUserId,
+            long loginChatUserId,
             String nickname,
             boolean isOwner,
             String content
@@ -31,7 +31,7 @@ public class MessageSendService {
         Message message = Message.builder()
                 .chatRoomId(chatRoomId)
                 .id(nextLong())
-                .chatUserId(chatUserId)
+                .chatUserId(loginChatUserId)
                 .nickname(nickname)
                 .isOwner(isOwner)
                 .content(content)
@@ -44,8 +44,25 @@ public class MessageSendService {
 
         // 3) STOMP & Redis 브로드캐스트
         MessageResponseDto responseDto = MessageResponseDto.from(message);
-        String dest = "/topic/chatrooms/" + chatRoomId + "/messages";
-        template.convertAndSend(dest, responseDto);
-        redisService.publish(dest, responseDto);
+
+        String artistTopic = "/topic/chatrooms/" + chatRoomId + "/messages/artist";
+        String fansTopic = "/topic/chatrooms/" + chatRoomId + "/messages/fans";
+        String selfTopic = "/topic/chatrooms/" + chatRoomId + "/messages/user/" + loginChatUserId;
+
+        if (isOwner) {
+            // 아티스트는 자신 토픽과 팬 전체 토픽으로 전송
+            template.convertAndSend(artistTopic, responseDto);
+            redisService.publish(artistTopic, responseDto);
+
+            template.convertAndSend(fansTopic, responseDto);
+            redisService.publish(fansTopic, responseDto);
+        } else {
+            // 팬은 아티스트 토픽과 자기 토픽으로 전송
+            template.convertAndSend(artistTopic, responseDto);
+            redisService.publish(artistTopic, responseDto);
+
+            template.convertAndSend(selfTopic, responseDto);
+            redisService.publish(selfTopic, responseDto);
+        }
     }
 }
