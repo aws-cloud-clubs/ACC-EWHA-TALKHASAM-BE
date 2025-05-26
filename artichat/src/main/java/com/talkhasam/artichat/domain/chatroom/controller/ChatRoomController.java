@@ -4,18 +4,14 @@ import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomPostResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomRequestDto;
 import com.talkhasam.artichat.domain.chatroom.dto.ChatRoomResponseDto;
 import com.talkhasam.artichat.domain.chatroom.dto.UpdateProfileImageRequestDto;
-import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
 import com.talkhasam.artichat.domain.chatroom.service.ChatRoomService;
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.util.List;
-
+@Tag(name = "ChatRooms")
 @RestController
 @RequestMapping("/chatrooms")
 @RequiredArgsConstructor

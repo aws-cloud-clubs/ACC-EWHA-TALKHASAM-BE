@@ -2,15 +2,13 @@ package com.talkhasam.artichat.domain.chatroom.repository;
 
 
 import com.talkhasam.artichat.domain.chatroom.entity.ChatRoom;
+import com.talkhasam.artichat.global.exception.CustomException;
+import com.talkhasam.artichat.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Expression;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.Instant;
 import java.util.List;
@@ -55,7 +53,7 @@ public class ChatRoomDynamoRepository implements ChatRoomRepository {
         // 1. 기존 채팅방 조회
         Optional<ChatRoom> existingRoom = findById(chatRoomId);
         if (existingRoom.isEmpty()) {
-            throw new RuntimeException("채팅방을 찾을 수 없습니다. ID: " + chatRoomId);
+            throw new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND);
         }
 
         // 2. 수정된 채팅방 객체 생성
