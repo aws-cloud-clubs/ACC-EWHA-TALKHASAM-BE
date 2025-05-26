@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MessageService {
     private final MessageRepository messageRepository;
+
     public MessageListResponseDto getMessageList(long chatRoomId, int limit, @Nullable Long startId) {
         var page = messageRepository.findByChatRoomId(chatRoomId, limit, startId);
         List<MessageDto> messages = page.getItems().stream()

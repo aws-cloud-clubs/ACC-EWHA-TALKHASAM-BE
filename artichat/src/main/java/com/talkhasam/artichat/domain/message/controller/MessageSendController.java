@@ -9,9 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
 
 @Slf4j
 @RestController
@@ -23,9 +22,9 @@ public class MessageSendController {
     public void onMessage(
             @DestinationVariable @Positive long chatRoomId,
             @Payload @Valid MessageRequestDto requestDto,
-            Principal principal
+            SimpMessageHeaderAccessor headerAccessor
     ) {
-        long chatUserId = Long.parseLong(principal.getName());
+        Long chatUserId = (Long) headerAccessor.getSessionAttributes().get("chatUserId");
         messageSendService.sendToChatRoom(
                 chatRoomId,
                 chatUserId,

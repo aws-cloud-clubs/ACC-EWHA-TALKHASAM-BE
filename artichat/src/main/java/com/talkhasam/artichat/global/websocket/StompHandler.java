@@ -14,7 +14,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,22 +23,25 @@ import java.util.Objects;
 public class StompHandler implements ChannelInterceptor {
     private final CustomTokenService customTokenService;
 
+    // websocket 연결시 헤더의 jwt token 유효성을 검증하고 chatUserId를 저장
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-        // 메세지의 STOMP 헤더를 쉽게 접근하기 위한 유틸리티 클래스
 
-        // websocket 연결시 헤더의 jwt token 유효성 검증
-        if(StompCommand.CONNECT == accessor.getCommand()){
-            log.info("[stomphandler] extract header");
+        if (StompCommand.CONNECT == accessor.getCommand()) {
             String token = accessor.getFirstNativeHeader("Authorization");
-            log.info("[stomphandler] token : {}",token);
-            if(!token.isEmpty()){
-                token = token.replace("Bearer ","").trim();
-                String chatUserId = customTokenService.extractUsername(token);
-                log.info("[stomphandler] chatUserId : {}", chatUserId);
 
-                Objects.requireNonNull(accessor.getSessionAttributes()).put("chatUserId", chatUserId); // 기존 헤더에 nickname 정보를 추가해 저장한다.
+            if (token != null && !token.isEmpty()) {
+                token = token.replace("Bearer ", "").trim();
+                String chatUserIdStr = customTokenService.extractUsername(token);
+                Long chatUserId = Long.valueOf(chatUserIdStr);
+
+                Map<String, Object> sessionAttrs = accessor.getSessionAttributes();
+                if (sessionAttrs == null) {
+                    throw new CustomException(ErrorCode.SESSION_NOT_INITIALIZED);
+                }
+                sessionAttrs.put("chatUserId", chatUserId);
+                log.info("[StompHandler] chatUserId : {}", chatUserId);
             } else {
                 throw new CustomException(ErrorCode.NOT_AUTHENTICATED);
             }
