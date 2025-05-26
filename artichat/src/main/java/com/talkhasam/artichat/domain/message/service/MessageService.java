@@ -65,7 +65,7 @@ public class MessageService {
 
             // 메시지 병합 및 정렬 (최신순)
             List<Message> merged = Stream.concat(pageTrueOwner.getItems().stream(), pageFalseOwnerMine.getItems().stream())
-                    .sorted(Comparator.comparing(Message::getCreatedAt).reversed())
+                    .sorted(Comparator.comparing(Message::getCreatedAt))
                     .collect(Collectors.toList());
 
             // 병합 후 nextKey 계산
