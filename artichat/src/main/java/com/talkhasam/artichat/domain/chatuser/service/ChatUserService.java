@@ -36,15 +36,15 @@ public class ChatUserService {
         chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         // 로그인 또는 신규 회원가입 처리
-        return createUser(chatRoomId, requestDto.nickname(), requestDto.password(), false);
+        return createUser(chatRoomId, requestDto.nickname(), requestDto.password(), null);
     }
 
     // 로그인 또는 회원가입 후 JWT 토큰 반환
-    public ChatUserLoginDataDto createUser(long chatRoomId, String nickname, String password, boolean isOwner) {
+    public ChatUserLoginDataDto createUser(long chatRoomId, String nickname, String password, Boolean isOwner) {
         // 로그인 또는 신규 회원가입 처리
         ChatUser chatUser = saveOrGet(chatRoomId, nickname, password, isOwner);
         // 토큰 생성
-        String accessToken = tokenService.generateToken(String.valueOf(chatUser.getId()), isOwner);
+        String accessToken = tokenService.generateToken(String.valueOf(chatUser.getId()), chatUser.isOwner());
         return new ChatUserLoginDataDto(accessToken, chatUser.getId(), chatUser.isOwner());
     }
 
