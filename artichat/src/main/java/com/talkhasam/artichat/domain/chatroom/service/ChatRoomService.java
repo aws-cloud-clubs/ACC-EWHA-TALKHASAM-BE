@@ -50,7 +50,7 @@ public class ChatRoomService {
                 .modifiedAt(Instant.now())
                 .build();
         chatRoomRepository.save(chatRoom);
-        ChatUserLoginDataDto chatUserLoginDataDto = chatUserService.createUser(chatRoomId, dto.owner(), dto.password());
+        ChatUserLoginDataDto chatUserLoginDataDto = chatUserService.createUser(chatRoomId, dto.owner(), dto.password(), true);
         return new ChatRoomPostResponseDto(chatRoomId, chatUserLoginDataDto);
     }
 

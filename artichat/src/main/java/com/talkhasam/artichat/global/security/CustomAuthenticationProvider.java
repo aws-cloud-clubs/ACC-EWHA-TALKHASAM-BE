@@ -3,7 +3,6 @@ package com.talkhasam.artichat.global.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,8 +13,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) {
         CustomAuthenticationToken token = (CustomAuthenticationToken) authentication;
-        UserDetails user = userDetailsService.loadUserByUsername(token.getUsername());
-        return new CustomAuthenticationToken(user,null, user.getAuthorities());
+        CustomUserDetails user = userDetailsService.loadUserById(Long.parseLong(token.getUsername()));
+        return new CustomAuthenticationToken(user,null, user.getAuthorities(), user.isOwner());
     }
 
     @Override

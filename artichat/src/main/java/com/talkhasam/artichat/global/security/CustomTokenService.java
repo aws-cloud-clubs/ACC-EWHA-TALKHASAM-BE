@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Slf4j
@@ -33,9 +35,13 @@ public class CustomTokenService {
         this.accessKey = Keys.hmacShaKeyFor(accessSecret.getBytes());
     }
 
-    public String generateToken(String userId) {
+    public String generateToken(String userId, boolean isOwner) {
         Date now = new Date();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("isOwner", isOwner);   // isOwner 클레임 추가
+
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(userId)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + expirationMs))
@@ -64,7 +70,26 @@ public class CustomTokenService {
                     .getBody();
             return claims.getSubject();
         } catch (JwtException | IllegalArgumentException e) {
-            log.error("JWT parsing failed: " + e.getMessage(), e);
+            log.error("JWT parsing failed: {}", e.getMessage(), e);
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        }
+    }
+
+    public boolean extractIsOwner(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(accessKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            Object isOwner = claims.get("isOwner");
+            return switch (isOwner) {
+                case Boolean b -> b;
+                case String s -> Boolean.parseBoolean(s);
+                case null, default -> false;
+            };
+        } catch (JwtException | IllegalArgumentException e) {
+            log.error("JWT parsing failed: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
     }
