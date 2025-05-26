@@ -58,7 +58,6 @@ public class ChatUser {
 
     // GSI Sort Key용으로 문자열 변환
     @DynamoDbAttribute("isOwner")
-    @NotNull
     public boolean isOwner() {
         return isOwner;
     }
