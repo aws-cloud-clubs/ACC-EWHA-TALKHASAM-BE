@@ -33,7 +33,7 @@ public class MessageDynamoRepository implements MessageRepository {
     public PageResult<Message> findByChatRoomId(long chatRoomId, int limit, @Nullable Long exclusiveStartMessageId) {
         QueryEnhancedRequest.Builder req = QueryEnhancedRequest.builder()
                 .queryConditional(QueryConditional.keyEqualTo(k -> k.partitionValue(chatRoomId)))
-                .scanIndexForward(false)
+                .scanIndexForward(true)
                 .limit(limit);
 
         return queryWithPaging(chatRoomId, exclusiveStartMessageId, req);
@@ -48,7 +48,7 @@ public class MessageDynamoRepository implements MessageRepository {
                         .expression("isOwner = :trueVal")
                         .putExpressionValue(":trueVal", AttributeValue.builder().bool(true).build())
                         .build())
-                .scanIndexForward(false)
+                .scanIndexForward(true)
                 .limit(limit);
 
         return queryWithPaging(chatRoomId, exclusiveStartMessageId, req);
@@ -59,7 +59,7 @@ public class MessageDynamoRepository implements MessageRepository {
     public PageResult<Message> findByChatUserId(long chatUserId, int limit, Long exclusiveStartMessageId) {
         QueryEnhancedRequest.Builder req = QueryEnhancedRequest.builder()
                 .queryConditional(QueryConditional.keyEqualTo(k -> k.partitionValue(chatUserId)))
-                .scanIndexForward(false)
+                .scanIndexForward(true)
                 .limit(limit);
 
         // 페이징용 시작키 설정
